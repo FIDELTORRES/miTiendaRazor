@@ -1,0 +1,28 @@
+@page
+@model TestDbModel
+@{
+    ViewData["Title"] = "Prueba de Conexión";
+}
+
+<h1>🧪 Prueba de Conexión a MySQL</h1>
+
+@if (Model.ConexionExitosa)
+{
+    <div class="alert alert-success">
+        ✅ ¡Conexión exitosa! Se encontraron @Model.CantidadProductos productos.
+    </div>
+    
+    <h3>Primeros 5 productos:</h3>
+    <ul>
+        @foreach (var producto in Model.Productos)
+        {
+            <li>@producto.Nombre (Código: @producto.Codigo)</li>
+        }
+    </ul>
+}
+else
+{
+    <div class="alert alert-danger">
+        ❌ Error al conectar con la base de datos: @Model.MensajeError
+    </div>
+}

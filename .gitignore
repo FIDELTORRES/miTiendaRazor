@@ -1,0 +1,103 @@
+# ================================================================
+# 📌 ARCHIVOS DE .NET / ASP.NET CORE
+# ================================================================
+
+## Ignorar archivos compilados
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+*.so
+*.dylib
+
+## Ignorar archivos de usuario
+*.user
+*.userprefs
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Ignorar archivos de base de datos locales
+*.mdf
+*.ldf
+*.db
+*.sqlite
+*.sqlite3
+
+## Ignorar archivos de configuración local
+appsettings.Development.json
+appsettings.Production.json
+*.local.json
+*.local
+
+## Ignorar archivos de dependencias
+/packages/
+*.nupkg
+
+## Ignorar archivos de logs
+*.log
+logs/
+log/
+
+## Ignorar archivos de caché
+*.cache
+*.tmp
+*.temp
+*.pid
+*.seed
+
+# ================================================================
+# 📌 VISUAL STUDIO CODE
+# ================================================================
+
+.vscode/
+*.code-workspace
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# ================================================================
+# 📌 SISTEMAS OPERATIVOS
+# ================================================================
+
+## Windows
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+## macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+## Linux
+*~
+.*.swp
+.*.swo
+
+# ================================================================
+# 📌 OTROS
+# ================================================================
+
+## Ignorar archivos de configuración de entorno
+.env
+.env.*
+*.env
+
+## Ignorar respaldos
+*.bak
+*.backup
+*.old
+
+## Ignorar archivos comprimidos
+*.zip
+*.rar
+*.7z
+*.tar.gz
+
+## Ignorar cobertura de pruebas
+TestResults/
+*.coverage
+*.coveragexml

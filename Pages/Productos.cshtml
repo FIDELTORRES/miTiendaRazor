@@ -1,0 +1,204 @@
+@page
+@model ProductosModel
+@{
+    ViewData["Title"] = "Productos";
+}
+
+<h1>📦 Lista de Productos por Tienda</h1>
+
+<!-- ============================================================ -->
+<!-- 📌 SECCIÓN DE FILTROS                                        -->
+<!-- ============================================================ -->
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <strong>🔍 Buscar Productos</strong>
+    </div>
+    <div class="card-body">
+        <form method="get" asp-page="/Productos">
+            <div class="row g-3">
+                <!-- Filtro por Tienda -->
+                <div class="col-md-2">
+                    <label class="form-label">Tienda</label>
+                    <select name="tiendaFiltro" class="form-select">
+                        <option value="">Todas</option>
+                        <option value="2" selected="@(Model.TiendaFiltro == 2)">🏪 Tienda 2</option>
+                        <option value="3" selected="@(Model.TiendaFiltro == 3)">📦 Almacén 3</option>
+                    </select>
+                </div>
+
+                <!-- Filtro por Código de Barras -->
+                <div class="col-md-3">
+                    <label class="form-label">Código de Barras</label>
+                    <input type="text" name="codbarraFiltro" class="form-control" 
+                           placeholder="Buscar por código..." 
+                           value="@Model.CodbarraFiltro" />
+                </div>
+
+                <!-- Filtro por Nombre de Producto -->
+                <div class="col-md-4">
+                    <label class="form-label">Nombre del Producto</label>
+                    <input type="text" name="nombreFiltro" class="form-control" 
+                           placeholder="Buscar por nombre..." 
+                           value="@Model.NombreFiltro" />
+                </div>
+
+                <!-- Botones -->
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">
+                        🔍 Buscar
+                    </button>
+                    <a asp-page="/Productos" asp-route-tiendaFiltro="2" 
+                       asp-route-codbarraFiltro="" asp-route-nombreFiltro="" 
+                       class="btn btn-secondary">
+                        🗑️ Limpiar
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 📌 TABLA DE PRODUCTOS                                        -->
+<!-- ============================================================ -->
+@if (Model.ProductosTienda.Any())
+{
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Producto</th>
+                    <th>Código de Barras</th>
+                    <th>Tienda</th>
+                    <th>Stock</th>
+                    <th>Precio Venta</th>
+                    <th>Precio Promo</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.ProductosTienda)
+                {
+                    <tr>
+                        <td>@item.Id</td>
+                        <td>@(item.Producto?.Nombre ?? "N/A")</td>
+                        <td>@item.Codbarra</td>
+                        <td>@item.IdTienda</td>
+                        <td>@(item.Stock?.ToString("F2") ?? "0")</td>
+                        <td>S/@(item.PrecioVenta?.ToString("F2") ?? "0")</td>
+                        <td>S/@(item.PrecioCompra?.ToString("F2") ?? "0")</td>
+                        <td>
+                            @if (item.Estado == 1)
+                            {
+                                <span class="badge bg-success">Activo</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Inactivo</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 📌 PAGINACIÓN                                                -->
+    <!-- ============================================================ -->
+    <nav aria-label="Navegación de páginas">
+        <ul class="pagination justify-content-center">
+            <!-- Botón Anterior -->
+            @if (Model.PaginaActual > 1)
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-page="/Productos" 
+                       asp-route-pagina="@(Model.PaginaActual - 1)"
+                       asp-route-tiendaFiltro="@Model.TiendaFiltro"
+                       asp-route-codbarraFiltro="@Model.CodbarraFiltro"
+                       asp-route-nombreFiltro="@Model.NombreFiltro">
+                        « Anterior
+                    </a>
+                </li>
+            }
+            else
+            {
+                <li class="page-item disabled">
+                    <span class="page-link">« Anterior</span>
+                </li>
+            }
+
+            <!-- Números de página -->
+            @{
+                int inicio = Math.Max(1, Model.PaginaActual - 2);
+                int fin = Math.Min(Model.TotalPaginas, Model.PaginaActual + 2);
+
+                // Asegurar que siempre se muestren al menos 5 páginas
+                if (fin - inicio < 4)
+                {
+                    if (inicio == 1)
+                        fin = Math.Min(5, Model.TotalPaginas);
+                    else if (fin == Model.TotalPaginas)
+                        inicio = Math.Max(1, Model.TotalPaginas - 4);
+                }
+            }
+
+            @for (int i = inicio; i <= fin; i++)
+            {
+                if (i == Model.PaginaActual)
+                {
+                    <li class="page-item active">
+                        <span class="page-link">@i</span>
+                    </li>
+                }
+                else
+                {
+                    <li class="page-item">
+                        <a class="page-link" asp-page="/Productos" 
+                           asp-route-pagina="@i"
+                           asp-route-tiendaFiltro="@Model.TiendaFiltro"
+                           asp-route-codbarraFiltro="@Model.CodbarraFiltro"
+                           asp-route-nombreFiltro="@Model.NombreFiltro">
+                            @i
+                        </a>
+                    </li>
+                }
+            }
+
+            <!-- Botón Siguiente -->
+            @if (Model.PaginaActual < Model.TotalPaginas)
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-page="/Productos" 
+                       asp-route-pagina="@(Model.PaginaActual + 1)"
+                       asp-route-tiendaFiltro="@Model.TiendaFiltro"
+                       asp-route-codbarraFiltro="@Model.CodbarraFiltro"
+                       asp-route-nombreFiltro="@Model.NombreFiltro">
+                        Siguiente »
+                    </a>
+                </li>
+            }
+            else
+            {
+                <li class="page-item disabled">
+                    <span class="page-link">Siguiente »</span>
+                </li>
+            }
+        </ul>
+    </nav>
+
+    <!-- Resumen de resultados -->
+    <div class="text-center text-muted">
+        <small>
+            Mostrando <strong>@Model.ProductosTienda.Count</strong> de <strong>@Model.TotalRegistros</strong> registros 
+            (Página @Model.PaginaActual de @Model.TotalPaginas)
+        </small>
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">
+        ⚠️ No se encontraron productos con los filtros seleccionados.
+    </div>
+}
