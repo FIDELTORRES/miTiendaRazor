@@ -109,4 +109,46 @@ public class ProductosModel : PageModel
             pagina = 1 
         });
     }
+
+    // ============================================================
+    // 📌 MÉTODO PARA CAMBIAR ESTADO (Eliminación Lógica)
+    // ============================================================
+    public async Task<IActionResult> OnGetToggleEstadoAsync(int id, int estado)
+    {
+        try
+        {
+            // Buscar el producto en la tienda
+            var productoTienda = await _context.ProductosTienda
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (productoTienda == null)
+            {
+                TempData["Error"] = "Producto no encontrado";
+                return RedirectToPage();
+            }
+
+            // Cambiar el estado
+            productoTienda.Estado = estado;
+            productoTienda.FechaModifica = DateOnly.FromDateTime(DateTime.Now);
+            productoTienda.HoraModifica = TimeOnly.FromDateTime(DateTime.Now);
+
+            await _context.SaveChangesAsync();
+
+            string mensaje = estado == 1 ? "activado" : "desactivado";
+            TempData["Success"] = $"Producto {mensaje} correctamente";
+        }
+        catch (Exception ex)
+        {
+            TempData["Error"] = $"Error al cambiar estado: {ex.Message}";
+        }
+
+        // Mantener los filtros después de la operación
+        return RedirectToPage(new
+        {
+            tiendaFiltro = TiendaFiltro,
+            codbarraFiltro = CodbarraFiltro,
+            nombreFiltro = NombreFiltro,
+            pagina = PaginaActual
+        });
+    }
 }
