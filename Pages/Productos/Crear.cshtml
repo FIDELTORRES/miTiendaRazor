@@ -1,0 +1,535 @@
+@page
+@model miTienda.Pages.Productos.CrearModel
+@{
+    ViewData["Title"] = "📦 Nuevo Producto";
+}
+
+<h2>📦 Nuevo Producto</h2>
+<hr />
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>❌ Error:</strong> @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <strong>✅ Éxito:</strong> @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card">
+    <div class="card-body">
+        <form method="post" id="productoForm" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+
+            <!-- ============================================================ -->
+            <!-- CLASIFICACIÓN OFICIAL (UNSPSC)                               -->
+            <!-- ============================================================ -->
+            <div class="row">
+                <div class="col-12">
+                    <h5 class="border-bottom pb-2">Clasificación Oficial (UNSPSC)</h5>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Producto.IdSubcategoria" class="form-label fw-bold">
+                        Categoría Oficial <span class="text-danger">*</span>
+                    </label>
+                    <select asp-for="Producto.IdSubcategoria" 
+                            class="form-select select2-categoria"
+                            id="idsubcategoria"
+                            style="width: 100%;">
+                        <option value="">-- Buscar por código o nombre --</option>
+                    </select>
+                    <span asp-validation-for="Producto.IdSubcategoria" class="text-danger"></span>
+                    <small class="form-text text-muted">Busque por código o nombre de la subcategoría</small>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- INFORMACIÓN BÁSICA                                           -->
+            <!-- ============================================================ -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <h5 class="border-bottom pb-2">Información Básica</h5>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="Producto.Codigo" class="form-label fw-bold">
+                        Código Interno <span class="text-danger">*</span>
+                    </label>
+                    <input asp-for="Producto.Codigo" class="form-control" id="codigo" readonly />
+                    <small class="form-text text-muted">Se genera automáticamente</small>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="Producto.Codbarra" class="form-label fw-bold">
+                        Código de Barra
+                    </label>
+                    <input asp-for="Producto.Codbarra" class="form-control" id="codbarra" />
+                    <small class="form-text text-muted" id="codbarra-status"></small>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="Producto.ImagenFile" class="form-label fw-bold">Imagen</label>
+                    <input asp-for="Producto.ImagenFile" class="form-control" type="file" accept="image/*" />
+                    <small class="form-text text-muted">Formatos: JPG, PNG, WEBP (Máx 2MB)</small>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Producto.Nombre" class="form-label fw-bold">
+                        Nombre del Producto <span class="text-danger">*</span>
+                    </label>
+                    <input asp-for="Producto.Nombre" class="form-control" id="id_nombre" 
+                           placeholder="Nombre producto para el Ticket" />
+                    <span asp-validation-for="Producto.Nombre" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Producto.Descripcion" class="form-label fw-bold">Descripción</label>
+                    <input asp-for="Producto.Descripcion" class="form-control" id="descripcion"
+                           placeholder="Nombre del producto para la WEB" />
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- STOCK Y PRECIOS                                              -->
+            <!-- ============================================================ -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <h5 class="border-bottom pb-2">Stock y Precios</h5>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="Producto.IdMedidas" class="form-label fw-bold">U/M</label>
+                    <select asp-for="Producto.IdMedidas" class="form-select" id="idmedidas">
+                        <option value="">-- Seleccione Unidad de Medida --</option>
+                        @foreach (var medida in Model.Medidas)
+                        {
+                            <option value="@medida.IdMedidas">@medida.Descripcion</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="Producto.StockMinimo" class="form-label fw-bold">Stock Mínimo</label>
+                    <input asp-for="Producto.StockMinimo" class="form-control" type="number" step="0.01" id="stockminimo" />
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="Producto.StockMaximo" class="form-label fw-bold">Stock Máximo</label>
+                    <input asp-for="Producto.StockMaximo" class="form-control" type="number" step="0.01" id="stockmaximo" />
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="Producto.MargenPorcentaje" class="form-label fw-bold">Margen de Ganancia (%)</label>
+                    <input asp-for="Producto.MargenPorcentaje" class="form-control" type="number" step="0.01" id="margenporcentaje" />
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- CONTROL                                                      -->
+            <!-- ============================================================ -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <h5 class="border-bottom pb-2">Control</h5>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label fw-bold">Fecha Ingreso</label>
+                    <input type="text" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" disabled />
+                    <small class="form-text text-muted">Fecha actual automática</small>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="Producto.Estado" class="form-label fw-bold">Estado</label>
+                    <select asp-for="Producto.Estado" class="form-select" id="estado">
+                        <option value="1">Activo</option>
+                        <option value="0">Inactivo</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- CLASIFICACIÓN TIENDA (WEB)                                   -->
+            <!-- ============================================================ -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <h5 class="border-bottom pb-2">Clasificación Tienda (Web)</h5>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="Producto.Categorias" class="form-label fw-bold">Categorías</label>
+                    <select asp-for="Producto.Categorias" class="form-select" id="categorias">
+                        <option value="">-- Seleccione Categoría --</option>
+                        @foreach (var cat in Model.CategoriasPropias)
+                        {
+                            <option value="@cat.IdCategoriapropia">@cat.Descripcion</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="Producto.CategoriaPaginaId" class="form-label fw-bold">Categoría/pagina Id</label>
+                    <select asp-for="Producto.CategoriaPaginaId" class="form-select" id="categoriapagina_id">
+                        <option value="">-- Seleccione Categoría Página --</option>
+                        @foreach (var cp in Model.CategoriasPagina)
+                        {
+                            <option value="@cp.IdCategoriapagina">@cp.Descripcion</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="Producto.IdSubcategoriaPagina" class="form-label fw-bold">Subcategoría Página</label>
+                    <select asp-for="Producto.IdSubcategoriaPagina" class="form-select" id="idsubcategoriapagina">
+                        <option value="">-- Seleccione Subcategoría Página --</option>
+                        @foreach (var sp in Model.SubcategoriasPagina)
+                        {
+                            <option value="@sp.IdSubcategoriapagina">@sp.Descripcion</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="Producto.IdMarca" class="form-label fw-bold">Marca</label>
+                    <select asp-for="Producto.IdMarca" class="form-select" id="idmarca">
+                        <option value="">-- Seleccione Marca --</option>
+                        @foreach (var marca in Model.Marcas)
+                        {
+                            <option value="@marca.Id">@marca.Descripcion</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- DATOS SUNAT (Facturación)                                    -->
+            <!-- ============================================================ -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <h5 class="border-bottom pb-2">Datos SUNAT (Facturación)</h5>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="Producto.IdTipoAfectacion" class="form-label fw-bold">Idtipoafectacion</label>
+                    <select asp-for="Producto.IdTipoAfectacion" class="form-select" id="idtipoafectacion">
+                        <option value="10">10 - Gravado</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="Producto.IdTipoFactura" class="form-label fw-bold">Id tipo factura</label>
+                    <select asp-for="Producto.IdTipoFactura" class="form-select" id="idtipofactura">
+                        <option value="0101">0101 - Venta Interna</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="Producto.IdCodigoDetalle" class="form-label fw-bold">Código Detalle</label>
+                    <select asp-for="Producto.IdCodigoDetalle" class="form-select" id="idcodigodetalle">
+                        <option value="01">01 - Ventas gravadas</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="Producto.IdTipoTributo" class="form-label fw-bold">Idtipotributo</label>
+                    <select asp-for="Producto.IdTipoTributo" class="form-select" id="idtipotributo">
+                        <option value="1000">1000 - IGV</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="Producto.IdTipoValorVenta" class="form-label fw-bold">Idtipovalorventa</label>
+                    <select asp-for="Producto.IdTipoValorVenta" class="form-select" id="idtipovalorventa">
+                        <option value="01">01 - Gravado</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="Producto.Impuesto" class="form-label fw-bold">Impuesto (%)</label>
+                    <input asp-for="Producto.Impuesto" class="form-control" type="number" step="0.01" readonly id="impuesto" />
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- DATOS DE TIENDA                                              -->
+            <!-- ============================================================ -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <h5 class="border-bottom pb-2">Datos de Tienda</h5>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="Producto.IdTienda" class="form-label fw-bold">Tienda</label>
+                    <select asp-for="Producto.IdTienda" class="form-select" id="idtienda">
+                        <option value="2">🏪 Tienda 2 (Principal)</option>
+                        <option value="3">📦 Almacén 3</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="Producto.StockInicial" class="form-label fw-bold">Stock Inicial</label>
+                    <input asp-for="Producto.StockInicial" class="form-control" type="number" step="0.01" id="stockinicial" />
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- BOTONES                                                      -->
+            <!-- ============================================================ -->
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary" id="btnGuardar">
+                    <i class="fas fa-save"></i> Guardar Producto
+                </button>
+                <a asp-page="../Productos" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    
+    <!-- Select2 CSS y JS -->
+    <!--
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    -->
+    <script>
+        // ============================================================ 
+        // VARIABLES GLOBALES
+        // ============================================================ 
+        var esEdicion = false;  // Para crear es false
+
+        // ============================================================ 
+        // BLOQUEAR/DESBLOQUEAR CAMPOS
+        // ============================================================ 
+        function bloquearCampos(bloquear) {
+            console.log('🔒 ' + (bloquear ? 'Bloqueando' : 'Desbloqueando') + ' campos...');
+
+            var campos = [
+                '#id_nombre', '#descripcion', '#idmedidas', '#codigo',
+                '#stockminimo', '#stockmaximo', '#margenporcentaje', '#estado',
+                '#categorias', '#categoriapagina_id', '#idsubcategoriapagina',
+                '#idmarca', '#idtipoafectacion', '#idtipofactura',
+                '#idcodigodetalle', '#idtipotributo', '#idtipovalorventa',
+                '#impuesto', '#idtienda', '#stockinicial'
+            ];
+
+            var siempreActivos = ['#idsubcategoria', '#codbarra'];
+
+            if (bloquear) {
+                $(campos.join(',')).prop('disabled', true).addClass('bg-light');
+            } else {
+                $(campos.join(',')).prop('disabled', false).removeClass('bg-light');
+            }
+
+            $(siempreActivos.join(',')).prop('disabled', false).removeClass('bg-light');
+
+            // Botón submit
+            $('#btnGuardar').prop('disabled', bloquear);
+
+            console.log('✅ Campos ' + (bloquear ? 'bloqueados' : 'desbloqueados'));
+        }
+
+        // ============================================================ 
+        // DOCUMENT READY
+        // ============================================================ 
+        $(document).ready(function() {
+            console.log('✅ DOM listo');
+
+            // ============================================================ 
+            // INICIALIZAR SELECT2 CON BÚSQUEDA AJAX
+            // ============================================================ 
+            $('#idsubcategoria').select2({
+                placeholder: "-- Buscar por código o nombre --",
+                allowClear: true,
+                minimumInputLength: 1,  // Comienza a buscar después de 1 carácter
+                ajax: {
+                    url: '@Url.Page("Crear", "BuscarSubcategorias")',
+                    dataType: 'json',
+                    delay: 300,  // Espera 300ms después de que el usuario deje de escribir
+                    data: function(params) {
+                        return {
+                            term: params.term  // El término de búsqueda
+                        };
+                    },
+                    processResults: function(data) {
+                        return {
+                            results: data.results
+                        };
+                    },
+                    cache: true
+                },
+                templateResult: formatResultado,  // Formato personalizado
+                templateSelection: formatSeleccion  // Formato de selección
+            });
+
+            // Función para formatear el resultado en el dropdown
+            function formatResultado(result) {
+                if (result.loading) {
+                    return result.text;
+                }
+                
+                // Crear un elemento HTML para mostrar código + descripción
+                var $container = $(
+                    '<div class="d-flex justify-content-between align-items-center">' +
+                        '<span><strong>' + result.id + '</strong></span>' +
+                        '<span class="text-muted ms-3">' + result.text.split(' - ')[1] + '</span>' +
+                    '</div>'
+                );
+                return $container;
+            }
+
+            // Función para formatear la selección (mostrar solo el texto)
+            function formatSeleccion(result) {
+                return result.text || result.id;
+            }
+
+            // ============================================================ 
+            // EVENTO: SELECCIÓN DE CATEGORÍA → GENERAR CÓDIGO
+            // ============================================================ 
+            $('#idsubcategoria').on('select2:select', function(e) {
+                var id = e.params.data.id;
+                console.log('📌 Categoría seleccionada:', id);
+                
+                if (id && id !== '') {
+                    generarCodigoProducto(id);
+                    setTimeout(function() {
+                        $('#codbarra').focus().select();
+                        console.log('🔍 Enfocando código de barra');
+                    }, 500);
+                }
+            });
+
+            // Evento: Limpiar selección
+            $('#idsubcategoria').on('select2:clear', function() {
+                console.log('🗑️ Selección limpiada');
+                $('#codigo').val('');
+                bloquearCampos(true);
+                mostrarMensajeBloqueo();
+                $('#codbarra').val('');
+                $('#codbarra').removeClass('is-valid is-invalid');
+                $('#codbarra-status').html('');
+            });
+
+            // ============================================================ 
+            // VALIDACIÓN DE CÓDIGO DE BARRA
+            // ============================================================ 
+            $('#codbarra').on('input blur', function() {
+                var codbarra = $(this).val().trim();
+                var $status = $('#codbarra-status');
+
+                $(this).removeClass('is-valid is-invalid');
+                $status.html('');
+
+                if (codbarra && codbarra.length > 0) {
+                    $status.html('<span class="text-info">⏳ Verificando código...</span>');
+
+                    $.ajax({
+                        url: '@Url.Page("Crear", "ValidarCodbarra")',
+                        data: { codbarra: codbarra },
+                        dataType: 'json',
+                        success: function(data) {
+                            if (data.existe) {
+                                $status.html('<span class="text-danger">⚠️ Código de barra ya existe. Pistolee otro código.</span>');
+                                $('#codbarra').addClass('is-invalid').removeClass('is-valid');
+                                bloquearCampos(true);
+                                $('#idsubcategoria').prop('disabled', false);
+                                $('#codbarra').prop('disabled', false);
+                            } else {
+                                $status.html('<span class="text-success">✅ Código disponible. Complete el formulario.</span>');
+                                $('#codbarra').addClass('is-valid').removeClass('is-invalid');
+                                bloquearCampos(false);
+                                $('#id_nombre').focus();
+                            }
+                        },
+                        error: function() {
+                            $status.html('<span class="text-warning">⚠️ Error al verificar. Intente de nuevo.</span>');
+                        }
+                    });
+                } else {
+                    $status.html('');
+                    $('#codbarra').removeClass('is-valid is-invalid');
+                    bloquearCampos(true);
+                    $('#idsubcategoria').prop('disabled', false);
+                    $('#codbarra').prop('disabled', false);
+                }
+            });
+
+            // ============================================================ 
+            // VALIDACIÓN ANTES DE ENVIAR
+            // ============================================================ 
+            $('#productoForm').on('submit', function(e) {
+                var codbarra = $('#codbarra').val().trim();
+                var codigo = $('#codigo').val().trim();
+                var nombre = $('#id_nombre').val().trim();
+
+                if (!codbarra) {
+                    e.preventDefault();
+                    alert('⚠️ Debe pistolear un código de barra válido.');
+                    $('#codbarra').focus();
+                    return false;
+                }
+
+                if ($('#codbarra').hasClass('is-invalid')) {
+                    e.preventDefault();
+                    alert('⚠️ El código de barra ya existe. Pistolee otro código.');
+                    $('#codbarra').focus().select();
+                    return false;
+                }
+
+                if (!codigo) {
+                    e.preventDefault();
+                    alert('⚠️ Debe seleccionar una categoría para generar el código.');
+                    $('#idsubcategoria').focus();
+                    return false;
+                }
+
+                if (!nombre) {
+                    e.preventDefault();
+                    alert('⚠️ Debe ingresar el nombre del producto.');
+                    $('#id_nombre').focus();
+                    return false;
+                }
+
+                console.log('✅ Formulario válido, enviando...');
+                return true;
+            });
+
+            // Placeholders
+            $('#id_nombre').attr('placeholder', 'Nombre producto para el Ticket');
+            $('#descripcion').attr('placeholder', 'Nombre del producto para la WEB');
+            $('#codbarra').attr('placeholder', 'Pistolee el código de barras');
+
+            // Si es nuevo, bloquear campos
+            if (!esEdicion) {
+                bloquearCampos(true);
+                mostrarMensajeBloqueo();
+            }
+        });
+
+        // ============================================================ 
+        // FUNCIONES AUXILIARES
+        // ============================================================ 
+        function mostrarMensajeBloqueo() {
+            if ($('#mensaje-bloqueo').length === 0) {
+                $('.card-body').prepend(`
+                    <div id="mensaje-bloqueo" class="alert alert-info alert-dismissible fade show">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Instrucciones:</strong><br>
+                        1. Seleccione una <strong>Categoría Oficial</strong> para generar el código<br>
+                        2. Pistolee un <strong>Código de Barra</strong> válido para activar el formulario
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                `);
+            }
+        }
+
+        function generarCodigoProducto(idsubcategoria) {
+            console.log('🔍 Generando código para:', idsubcategoria);
+
+            if (!idsubcategoria || idsubcategoria === '') {
+                console.warn('⚠️ No hay subcategoría seleccionada');
+                return;
+            }
+
+            $.ajax({
+                url: '@Url.Page("Crear", "GenerarCodigo")',
+                data: { idsubcategoria: idsubcategoria },
+                dataType: 'json',
+                success: function(data) {
+                    console.log('✅ Código generado:', data);
+                    if (data.codigo) {
+                        $('#codigo').val(data.codigo);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('❌ Error AJAX:', error);
+                }
+            });
+        }
+    </script>
+}

@@ -73,6 +73,11 @@
             </div>
         </form>
     </div>
+    <div class="mb-3">
+        <a asp-page="/Productos/Crear" class="btn btn-success">
+            <i class="fas fa-plus"></i> Nuevo Producto
+        </a>
+    </div>
 </div>
 
 <!-- ============================================================ -->
@@ -103,14 +108,18 @@
                         <td>
                             @if (!string.IsNullOrEmpty(item.Producto?.Imagen))
                             {
-                                <img src="~/images/productos/@item.Producto.Imagen" 
-                                     alt="@item.Producto.Nombre" 
-                                     style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;"
-                                     onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\"text-muted\">📷</span>'" />
+                                <div style="width:50px;height:50px;border-radius:4px;overflow:hidden;background:#f8f9fa;display:flex;align-items:center;justify-content:center;border:1px solid #dee2e6;">
+                                    <img src="~/images/productos/@item.Producto.Imagen" 
+                                        alt="@item.Producto.Nombre" 
+                                        style="width:100%;height:100%;object-fit:cover;"
+                                        onerror="this.style.display='none'; this.parentElement.textContent='📷';" />
+                                </div>
                             }
                             else
                             {
-                                <span class="text-muted">📷</span>
+                                <div style="width:50px;height:50px;border-radius:4px;background:#f8f9fa;display:flex;align-items:center;justify-content:center;border:1px solid #dee2e6;">
+                                    <span style="font-size:24px;color:#6c757d;">📷</span>
+                                </div>
                             }
                         </td>
                         <td>

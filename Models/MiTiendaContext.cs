@@ -12,6 +12,15 @@ public class MiTiendaContext : DbContext
     public DbSet<Producto> Productos { get; set; }
     public DbSet<ProductoTienda> ProductosTienda { get; set; } 
 
+// Agregar estas propiedades al final de la clase MiTiendaContext
+    public DbSet<Subcategoria> Subcategorias { get; set; }
+    public DbSet<Categoriapropia> CategoriasPropias { get; set; }
+    public DbSet<Categoriapagina> CategoriasPagina { get; set; }
+    public DbSet<Subcategoriapagina> SubcategoriasPagina { get; set; }
+    public DbSet<Marca> Marcas { get; set; }
+    public DbSet<Medida> Medidas { get; set; }
+    public DbSet<Kardex> Kardex { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -75,6 +84,93 @@ public class MiTiendaContext : DbContext
             entity.Property(e => e.ModelosId).HasColumnName("modelos_id");
             entity.Property(e => e.ColoresId).HasColumnName("colores_id");
 
+        });
+        
+
+        // Y en OnModelCreating agregar:
+        modelBuilder.Entity<Subcategoria>(entity =>
+        {
+            entity.ToTable("subcategoria");
+            entity.HasKey(e => e.IdSubcategoria);
+            entity.Property(e => e.IdSubcategoria).HasColumnName("idsubcategoria");
+            entity.Property(e => e.IdCategoria).HasColumnName("idcategoria");
+            entity.Property(e => e.Descripcion).HasColumnName("descripcion");
+            entity.Property(e => e.Estado).HasColumnName("estado");
+            entity.Property(e => e.Uso).HasColumnName("uso");
+            entity.Property(e => e.Imagen).HasColumnName("imagen");
+        });
+
+        modelBuilder.Entity<Categoriapropia>(entity =>
+        {
+            entity.ToTable("categoriapropia");
+            entity.HasKey(e => e.IdCategoriapropia);
+            entity.Property(e => e.IdCategoriapropia).HasColumnName("idcategoriapropia");
+            entity.Property(e => e.Descripcion).HasColumnName("descripcion");
+            entity.Property(e => e.Imagen).HasColumnName("imagen");
+            entity.Property(e => e.Estado).HasColumnName("estado");
+        });
+
+        modelBuilder.Entity<Categoriapagina>(entity =>
+        {
+            entity.ToTable("categoriapagina");
+            entity.HasKey(e => e.IdCategoriapagina);
+            entity.Property(e => e.IdCategoriapagina).HasColumnName("idcategoriapagina");
+            entity.Property(e => e.Descripcion).HasColumnName("descripcion");
+            entity.Property(e => e.IdCategoriapropia).HasColumnName("idcategoriapropia");
+            entity.Property(e => e.IdSubcategoria).HasColumnName("idsubcategoria");
+            entity.Property(e => e.Imagen).HasColumnName("imagen");
+            entity.Property(e => e.Estado).HasColumnName("estado");
+        });
+
+        modelBuilder.Entity<Subcategoriapagina>(entity =>
+        {
+            entity.ToTable("subcategoriapagina");
+            entity.HasKey(e => e.IdSubcategoriapagina);
+            entity.Property(e => e.IdSubcategoriapagina).HasColumnName("idsubcategoriapagina");
+            entity.Property(e => e.Descripcion).HasColumnName("descripcion");
+            entity.Property(e => e.Estado).HasColumnName("estado");
+            entity.Property(e => e.IdCategoriapagina).HasColumnName("idcategoriapagina");
+            entity.Property(e => e.Imagen).HasColumnName("imagen");
+        });
+
+        modelBuilder.Entity<Marca>(entity =>
+        {
+            entity.ToTable("tbmarcas");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Descripcion).HasColumnName("descripcion");
+            entity.Property(e => e.Estado).HasColumnName("estado");
+            entity.Property(e => e.FlagTipo).HasColumnName("flagtipo");
+        });
+
+        modelBuilder.Entity<Medida>(entity =>
+        {
+            entity.ToTable("tbmedidas");
+            entity.HasKey(e => e.IdMedidas);
+            entity.Property(e => e.IdMedidas).HasColumnName("idmedidas");
+            entity.Property(e => e.DescripCorta).HasColumnName("descripcorta");
+            entity.Property(e => e.Descripcion).HasColumnName("descripcion");
+            entity.Property(e => e.Estado).HasColumnName("estado");
+        });
+
+        modelBuilder.Entity<Kardex>(entity =>
+        {
+            entity.ToTable("kardex");
+            entity.HasKey(e => e.IdKardex);
+            entity.Property(e => e.IdKardex).HasColumnName("idkardex");
+            entity.Property(e => e.IdProducto).HasColumnName("idproducto");
+            entity.Property(e => e.ProductoId).HasColumnName("producto_id");
+            entity.Property(e => e.Cantidad).HasColumnName("cantidad");
+            entity.Property(e => e.CantidadSalida).HasColumnName("cantidadsalida");
+            entity.Property(e => e.Fecha).HasColumnName("fecha");
+            entity.Property(e => e.Hora).HasColumnName("hora");
+            entity.Property(e => e.IdAlmacen).HasColumnName("idalmacen");
+            entity.Property(e => e.IdLocal).HasColumnName("idlocal");
+            entity.Property(e => e.Estado).HasColumnName("estado");
+            entity.Property(e => e.RucEmisor).HasColumnName("rucemisor");
+            entity.Property(e => e.IdUsuario).HasColumnName("idusuario");
+            entity.Property(e => e.Observacion).HasColumnName("observacion");
+            entity.Property(e => e.PrecioUnitario).HasColumnName("preciounitario");
         });
     }
 }
