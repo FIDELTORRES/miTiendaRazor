@@ -28,6 +28,15 @@
         <form method="post" id="productoForm" enctype="multipart/form-data">
             @Html.AntiForgeryToken()
 
+            <!-- Mensaje de instrucciones -->
+            <div id="mensaje-bloqueo" class="alert alert-info alert-dismissible fade show">
+                <i class="fas fa-info-circle"></i>
+                <strong>Instrucciones:</strong><br>
+                1. Seleccione una <strong>Categoría Oficial</strong> para generar el código<br>
+                2. Pistolee un <strong>Código de Barra</strong> válido para activar el formulario
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
             <!-- ============================================================ -->
             <!-- CLASIFICACIÓN OFICIAL (UNSPSC)                               -->
             <!-- ============================================================ -->
@@ -71,11 +80,6 @@
                     <input asp-for="Producto.Codbarra" class="form-control" id="codbarra" />
                     <small class="form-text text-muted" id="codbarra-status"></small>
                 </div>
-                <div class="col-md-3 mb-3">
-                    <label asp-for="Producto.ImagenFile" class="form-label fw-bold">Imagen</label>
-                    <input asp-for="Producto.ImagenFile" class="form-control" type="file" accept="image/*" />
-                    <small class="form-text text-muted">Formatos: JPG, PNG, WEBP (Máx 2MB)</small>
-                </div>
                 <div class="col-md-6 mb-3">
                     <label asp-for="Producto.Nombre" class="form-label fw-bold">
                         Nombre del Producto <span class="text-danger">*</span>
@@ -88,6 +92,27 @@
                     <label asp-for="Producto.Descripcion" class="form-label fw-bold">Descripción</label>
                     <input asp-for="Producto.Descripcion" class="form-control" id="descripcion"
                            placeholder="Nombre del producto para la WEB" />
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- IMAGEN                                                       -->
+            <!-- ============================================================ -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <h5 class="border-bottom pb-2">Imagen</h5>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label fw-bold">Seleccionar archivo</label>
+                    <input asp-for="Producto.ImagenFile" class="form-control" type="file" accept="image/*" id="imagenInput" />
+                    <small class="form-text text-muted">Formatos: JPG, PNG, WEBP (Máx 2MB)</small>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label class="form-label fw-bold">Vista previa</label>
+                    <div id="previewContainer" style="width:100px;height:100px;border:1px dashed #dee2e6;border-radius:4px;display:flex;align-items:center;justify-content:center;background:#f8f9fa;overflow:hidden;">
+                        <img id="imagePreview" src="#" alt="Vista previa" style="display:none;width:100%;height:100%;object-fit:contain;" />
+                        <span id="placeholderText" style="font-size:32px;color:#6c757d;">🖼️</span>
+                    </div>
                 </div>
             </div>
 
@@ -235,26 +260,7 @@
                 </div>
             </div>
 
-            <!-- ============================================================ -->
-            <!-- DATOS DE TIENDA                                              -->
-            <!-- ============================================================ -->
-            <div class="row mt-4">
-                <div class="col-12">
-                    <h5 class="border-bottom pb-2">Datos de Tienda</h5>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <label asp-for="Producto.IdTienda" class="form-label fw-bold">Tienda</label>
-                    <select asp-for="Producto.IdTienda" class="form-select" id="idtienda">
-                        <option value="2">🏪 Tienda 2 (Principal)</option>
-                        <option value="3">📦 Almacén 3</option>
-                    </select>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <label asp-for="Producto.StockInicial" class="form-label fw-bold">Stock Inicial</label>
-                    <input asp-for="Producto.StockInicial" class="form-control" type="number" step="0.01" id="stockinicial" />
-                </div>
-            </div>
-
+            
             <!-- ============================================================ -->
             <!-- BOTONES                                                      -->
             <!-- ============================================================ -->
@@ -262,21 +268,118 @@
                 <button type="submit" class="btn btn-primary" id="btnGuardar">
                     <i class="fas fa-save"></i> Guardar Producto
                 </button>
-                <a asp-page="../Productos" class="btn btn-secondary">
+                <a asp-page="../Index" class="btn btn-secondary">
                     <i class="fas fa-times"></i> Cancelar
                 </a>
             </div>
         </form>
     </div>
 </div>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     
     <!-- Select2 CSS y JS -->
-    <!--
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    -->
+    
+    <style>
+        /* ============================================================ */
+        /* ESTILOS PERSONALIZADOS PARA SELECT2                          */
+        /* ============================================================ */
+        .select2-result-categoria {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 8px;
+            width: 100%;
+        }
+        
+        .select2-result-categoria .codigo {
+            font-weight: bold;
+            color: #0d6efd;
+            min-width: 60px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .select2-result-categoria .descripcion {
+            color: #212529;
+            margin-left: 15px;
+            flex: 1;
+        }
+        
+        .select2-container--default .select2-results__option {
+            padding: 6px 12px;
+        }
+        
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: #0d6efd !important;
+            color: white !important;
+        }
+        
+        .select2-container--default .select2-results__option--highlighted[aria-selected] .select2-result-categoria .codigo {
+            color: white !important;
+        }
+        
+        .select2-container--default .select2-results__option--highlighted[aria-selected] .select2-result-categoria .descripcion {
+            color: white !important;
+        }
+        
+        .select2-container--default .select2-selection--single {
+            border: 1px solid #ced4da;
+            border-radius: 0.375rem;
+            padding: 0.375rem 0.75rem;
+            height: auto;
+            min-height: 38px;
+        }
+        
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #212529;
+            line-height: 1.5;
+        }
+        
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 36px;
+        }
+        
+        .select2-container--default .select2-selection--single .select2-selection__placeholder {
+            color: #6c757d;
+        }
+        
+        .select2-dropdown {
+            border: 1px solid #ced4da;
+            border-radius: 0.375rem;
+        }
+        
+        .select2-search__field {
+            border: 1px solid #ced4da !important;
+            border-radius: 0.375rem !important;
+            padding: 0.375rem 0.75rem !important;
+        }
+        
+        .select2-search__field:focus {
+            border-color: #86b7fe !important;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+        }
+        
+        /* Campo deshabilitado */
+        .select2-container--default.select2-container--disabled .select2-selection--single {
+            background-color: #e9ecef !important;
+        }
+
+        /* Estilos para campos deshabilitados */
+        .campo-bloqueado {
+            background-color: #e9ecef !important;
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
+        .campo-bloqueado:focus {
+            box-shadow: none !important;
+            border-color: #ced4da !important;
+        }
+    </style>
+
     <script>
         // ============================================================ 
         // VARIABLES GLOBALES
@@ -289,29 +392,55 @@
         function bloquearCampos(bloquear) {
             console.log('🔒 ' + (bloquear ? 'Bloqueando' : 'Desbloqueando') + ' campos...');
 
+            // Lista de todos los campos a bloquear/desbloquear
             var campos = [
                 '#id_nombre', '#descripcion', '#idmedidas', '#codigo',
                 '#stockminimo', '#stockmaximo', '#margenporcentaje', '#estado',
                 '#categorias', '#categoriapagina_id', '#idsubcategoriapagina',
                 '#idmarca', '#idtipoafectacion', '#idtipofactura',
                 '#idcodigodetalle', '#idtipotributo', '#idtipovalorventa',
-                '#impuesto', '#idtienda', '#stockinicial'
+                '#impuesto', '#idtienda', '#stockinicial', '#imagenInput'
             ];
 
+            // Campos que siempre deben estar activos
             var siempreActivos = ['#idsubcategoria', '#codbarra'];
 
             if (bloquear) {
-                $(campos.join(',')).prop('disabled', true).addClass('bg-light');
+                $(campos.join(',')).prop('disabled', true).addClass('campo-bloqueado');
             } else {
-                $(campos.join(',')).prop('disabled', false).removeClass('bg-light');
+                $(campos.join(',')).prop('disabled', false).removeClass('campo-bloqueado');
             }
 
-            $(siempreActivos.join(',')).prop('disabled', false).removeClass('bg-light');
+            // Asegurar que los campos siempre activos lo estén
+            $(siempreActivos.join(',')).prop('disabled', false).removeClass('campo-bloqueado');
 
             // Botón submit
             $('#btnGuardar').prop('disabled', bloquear);
 
             console.log('✅ Campos ' + (bloquear ? 'bloqueados' : 'desbloqueados'));
+        }
+
+        // ============================================================ 
+        // PREVISUALIZACIÓN DE IMAGEN
+        // ============================================================ 
+        function previewImage(event) {
+            const input = event.target;
+            const preview = document.getElementById('imagePreview');
+            const placeholder = document.getElementById('placeholderText');
+
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    placeholder.style.display = 'none';
+                }
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                preview.src = '#';
+                preview.style.display = 'none';
+                placeholder.style.display = 'block';
+            }
         }
 
         // ============================================================ 
@@ -323,17 +452,19 @@
             // ============================================================ 
             // INICIALIZAR SELECT2 CON BÚSQUEDA AJAX
             // ============================================================ 
-            $('#idsubcategoria').select2({
+            var $select = $('#idsubcategoria');
+            
+            $select.select2({
                 placeholder: "-- Buscar por código o nombre --",
                 allowClear: true,
-                minimumInputLength: 1,  // Comienza a buscar después de 1 carácter
+                minimumInputLength: 0,
                 ajax: {
                     url: '@Url.Page("Crear", "BuscarSubcategorias")',
                     dataType: 'json',
-                    delay: 300,  // Espera 300ms después de que el usuario deje de escribir
+                    delay: 300,
                     data: function(params) {
                         return {
-                            term: params.term  // El término de búsqueda
+                            term: params.term || ''
                         };
                     },
                     processResults: function(data) {
@@ -343,8 +474,11 @@
                     },
                     cache: true
                 },
-                templateResult: formatResultado,  // Formato personalizado
-                templateSelection: formatSeleccion  // Formato de selección
+                templateResult: formatResultado,
+                templateSelection: formatSeleccion,
+                escapeMarkup: function(markup) {
+                    return markup;
+                }
             });
 
             // Función para formatear el resultado en el dropdown
@@ -353,25 +487,32 @@
                     return result.text;
                 }
                 
-                // Crear un elemento HTML para mostrar código + descripción
+                var parts = result.text.split(' - ');
+                var codigo = parts[0] || result.id;
+                var descripcion = parts.slice(1).join(' - ') || '';
+                
                 var $container = $(
-                    '<div class="d-flex justify-content-between align-items-center">' +
-                        '<span><strong>' + result.id + '</strong></span>' +
-                        '<span class="text-muted ms-3">' + result.text.split(' - ')[1] + '</span>' +
+                    '<div class="select2-result-categoria">' +
+                        '<span class="codigo">' + codigo + '</span>' +
+                        '<span class="descripcion">' + descripcion + '</span>' +
                     '</div>'
                 );
+                
                 return $container;
             }
 
-            // Función para formatear la selección (mostrar solo el texto)
+            // Función para formatear la selección
             function formatSeleccion(result) {
+                if (!result.id) {
+                    return result.text;
+                }
                 return result.text || result.id;
             }
 
             // ============================================================ 
             // EVENTO: SELECCIÓN DE CATEGORÍA → GENERAR CÓDIGO
             // ============================================================ 
-            $('#idsubcategoria').on('select2:select', function(e) {
+            $select.on('select2:select', function(e) {
                 var id = e.params.data.id;
                 console.log('📌 Categoría seleccionada:', id);
                 
@@ -385,15 +526,20 @@
             });
 
             // Evento: Limpiar selección
-            $('#idsubcategoria').on('select2:clear', function() {
+            $select.on('select2:clear', function() {
                 console.log('🗑️ Selección limpiada');
                 $('#codigo').val('');
                 bloquearCampos(true);
-                mostrarMensajeBloqueo();
                 $('#codbarra').val('');
                 $('#codbarra').removeClass('is-valid is-invalid');
                 $('#codbarra-status').html('');
+                $('#codbarra').prop('disabled', false);
             });
+
+            // ============================================================ 
+            // PREVISUALIZACIÓN DE IMAGEN
+            // ============================================================ 
+            $('#imagenInput').on('change', previewImage);
 
             // ============================================================ 
             // VALIDACIÓN DE CÓDIGO DE BARRA
@@ -417,8 +563,6 @@
                                 $status.html('<span class="text-danger">⚠️ Código de barra ya existe. Pistolee otro código.</span>');
                                 $('#codbarra').addClass('is-invalid').removeClass('is-valid');
                                 bloquearCampos(true);
-                                $('#idsubcategoria').prop('disabled', false);
-                                $('#codbarra').prop('disabled', false);
                             } else {
                                 $status.html('<span class="text-success">✅ Código disponible. Complete el formulario.</span>');
                                 $('#codbarra').addClass('is-valid').removeClass('is-invalid');
@@ -434,8 +578,6 @@
                     $status.html('');
                     $('#codbarra').removeClass('is-valid is-invalid');
                     bloquearCampos(true);
-                    $('#idsubcategoria').prop('disabled', false);
-                    $('#codbarra').prop('disabled', false);
                 }
             });
 
@@ -484,30 +626,15 @@
             $('#descripcion').attr('placeholder', 'Nombre del producto para la WEB');
             $('#codbarra').attr('placeholder', 'Pistolee el código de barras');
 
-            // Si es nuevo, bloquear campos
+            // Si es nuevo, bloquear campos inicialmente
             if (!esEdicion) {
                 bloquearCampos(true);
-                mostrarMensajeBloqueo();
             }
         });
 
         // ============================================================ 
         // FUNCIONES AUXILIARES
         // ============================================================ 
-        function mostrarMensajeBloqueo() {
-            if ($('#mensaje-bloqueo').length === 0) {
-                $('.card-body').prepend(`
-                    <div id="mensaje-bloqueo" class="alert alert-info alert-dismissible fade show">
-                        <i class="fas fa-info-circle"></i>
-                        <strong>Instrucciones:</strong><br>
-                        1. Seleccione una <strong>Categoría Oficial</strong> para generar el código<br>
-                        2. Pistolee un <strong>Código de Barra</strong> válido para activar el formulario
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                `);
-            }
-        }
-
         function generarCodigoProducto(idsubcategoria) {
             console.log('🔍 Generando código para:', idsubcategoria);
 

@@ -22,14 +22,14 @@ public class ProductoCreateViewModel
     [MaxLength(255)]
     public string? Descripcion { get; set; }
 
-    public string? Imagen { get; set; }  // Nombre del archivo
-    public IFormFile? ImagenFile { get; set; }  // Archivo subido
+    public string? Imagen { get; set; }
+    public IFormFile? ImagenFile { get; set; }
 
     // ============================================================
     // 📌 CLASIFICACIÓN OFICIAL (UNSPSC)
     // ============================================================
     [Required(ErrorMessage = "Seleccione una categoría oficial")]
-    public int IdSubcategoria { get; set; }  // Apunta a subcategoria.idsubcategoria
+    public int IdSubcategoria { get; set; }
 
     // ============================================================
     // 📌 STOCK Y PRECIOS
@@ -38,6 +38,12 @@ public class ProductoCreateViewModel
     public decimal? StockMinimo { get; set; }
     public decimal? StockMaximo { get; set; }
     public decimal? MargenPorcentaje { get; set; }
+
+    // ============================================================
+    // 📌 PRECIOS DE VENTA Y COMPRA
+    // ============================================================
+    // public decimal? PrecioVenta { get; set; }
+    // public decimal? PrecioCompra { get; set; }
 
     // ============================================================
     // 📌 CONTROL
@@ -50,7 +56,7 @@ public class ProductoCreateViewModel
     // ============================================================
     public int? Categorias { get; set; }  // Categoriapropia
     public int? CategoriaPaginaId { get; set; }  // Categoriapagina
-    public int? IdSubcategoriaPagina { get; set; }  // Subcategoriapagina
+    public int? IdSubcategoriaPagina { get; set; }  // 🔧 Subcategoriapagina
     public int? IdMarca { get; set; }
 
     // ============================================================
@@ -76,8 +82,9 @@ public class ProductoCreateViewModel
     // ============================================================
     // 📌 DATOS DE TIENDA
     // ============================================================
-    [Required(ErrorMessage = "Seleccione una tienda")]
     public int IdTienda { get; set; } = 2;
 
+    // 🔧 Este campo se usa en el formulario pero se ignora al guardar
+    // El stock siempre será 0 en todas las tiendas según prompt
     public decimal? StockInicial { get; set; } = 0;
 }

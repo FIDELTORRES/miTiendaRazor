@@ -52,4 +52,8 @@ public class Kardex
 
     [Column("preciounitario")]
     public decimal? PrecioUnitario { get; set; }
+
+    // 🔧 NUEVO CAMPO
+    [Column("idflag")]
+    public int? IdFlag { get; set; }  // 1=Entrada, 2=Salida
 }

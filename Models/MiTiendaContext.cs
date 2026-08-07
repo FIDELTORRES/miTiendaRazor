@@ -20,6 +20,7 @@ public class MiTiendaContext : DbContext
     public DbSet<Marca> Marcas { get; set; }
     public DbSet<Medida> Medidas { get; set; }
     public DbSet<Kardex> Kardex { get; set; }
+    public DbSet<Tienda> Tiendas { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -171,6 +172,19 @@ public class MiTiendaContext : DbContext
             entity.Property(e => e.IdUsuario).HasColumnName("idusuario");
             entity.Property(e => e.Observacion).HasColumnName("observacion");
             entity.Property(e => e.PrecioUnitario).HasColumnName("preciounitario");
+        });
+
+        // En OnModelCreating agregar:
+        modelBuilder.Entity<Tienda>(entity =>
+        {
+            entity.ToTable("tblocal");
+            entity.HasKey(e => e.IdLocal);
+            entity.Property(e => e.IdLocal).HasColumnName("idlocal");
+            entity.Property(e => e.Nombre).HasColumnName("nombre").HasMaxLength(20);
+            entity.Property(e => e.Direccion).HasColumnName("direccion").HasMaxLength(100);
+            entity.Property(e => e.Estado).HasColumnName("estado");
+            entity.Property(e => e.RucEmisor).HasColumnName("rucemisor").HasMaxLength(14);
+            entity.Property(e => e.Flag).HasColumnName("flag");
         });
     }
 }
