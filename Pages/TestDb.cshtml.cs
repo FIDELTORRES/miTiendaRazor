@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using miTienda.Models;
+using miTienda.Data;   // ← AGREGAR ESTA LÍNEA
 using System.Collections.Generic;
 using System.Linq;
 

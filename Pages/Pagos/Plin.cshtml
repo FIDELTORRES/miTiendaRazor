@@ -1,0 +1,183 @@
+@page
+@model miTienda.Pages.Pagos.PlinModel
+@{
+    ViewData["Title"] = "Pago con Plin";
+    Layout = "_Layout";
+}
+
+<div class="container py-5" style="background-color: #070B12; min-height: 100vh; color: #FAFAFA;">
+    <h2 style="color: #FAFAFA; font-weight: bold;">📱 Pago con Plin</h2>
+    <hr style="border-color: #0B6299;" />
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Card con información de pago -->
+            <div class="card" style="background-color: #1A1F2E; border: none; border-radius: 12px; padding: 25px; margin-bottom: 20px;">
+                <div class="text-center mb-4">
+                    <!-- Logo Plin -->
+                    <div style="height: 80px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
+                        <img src="~/images/pagos/plin-logo.png" alt="Plin" 
+                             style="max-height: 70px; object-fit: contain;"
+                             onerror='this.style.display="none"; this.parentElement.innerHTML="<div style=\"font-size:60px;\">💳</div>";' />
+                    </div>
+                    <h4 style="color: #FFA600; font-weight: bold;">Plin</h4>
+                    <p style="color: #a0a0a0;">Paga al instante con Plin desde tu banco</p>
+                </div>
+
+                <!-- ✅ MONTO A PAGAR (con alerta de precarga) -->
+                <div class="text-center mb-4" style="background-color: #070B12; padding: 20px; border-radius: 12px; border: 2px solid #FFA600;">
+                    <span style="color: #a0a0a0; font-size: 14px;">💰 MONTO A PAGAR</span>
+                    <div style="font-size: 38px; color: #FFA600; font-weight: bold;">
+                        S/ @(Model.Total?.ToString("F2") ?? "0.00")
+                    </div>
+                    <div style="margin-top: 8px; background-color: #0B6299; padding: 4px 12px; border-radius: 20px; display: inline-block;">
+                        <span style="color: #FAFAFA; font-size: 12px;">✅ Monto precargado en el QR</span>
+                    </div>
+                </div>
+
+                <!-- ✅ QR Code DINÁMICO con monto precargado -->
+                <div class="text-center mb-3">
+                    <label style="color: #FAFAFA; font-weight: bold;">📲 Escanea el QR para pagar:</label>
+                    <div style="background-color: white; padding: 15px; border-radius: 12px; display: inline-block; margin: 10px auto; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+                        @if (!string.IsNullOrEmpty(Model.QRUrl))
+                        {
+                            <img src="@Model.QRUrl" alt="QR Plin" 
+                                 style="width: 220px; height: 220px; object-fit: contain;" />
+                        }
+                        else
+                        {
+                            <img src="~/images/pagos/plin-qr.png" alt="QR Plin" 
+                                 style="width: 220px; height: 220px; object-fit: contain;"
+                                 onerror='this.style.display="none"; this.parentElement.innerHTML="<div style=\"font-size:60px;color:#6c757d;\">💳<br><small style=\"font-size:14px;color:#FAFAFA;\">QR no disponible</small></div>";' />
+                        }
+                    </div>
+                    <p style="color: #6c6c6c; font-size: 12px; margin-top: 8px;">
+                        El QR incluye el monto de <strong style="color: #FFA600;">S/ @(Model.Total?.ToString("F2") ?? "0.00")</strong>
+                    </p>
+                    <p style="color: #6c6c6c; font-size: 12px;">
+                        Escanea con la app de tu banco <strong style="color: #FFA600;">(Interbank)</strong>
+                    </p>
+                </div>
+
+                <!-- Número de Plin -->
+                <div class="text-center mb-4">
+                    <label style="color: #FAFAFA; font-weight: bold;">📞 O ingresa manualmente:</label>
+                    <div style="font-size: 28px; color: #FFA600; font-weight: bold; background-color: #070B12; padding: 12px; border-radius: 8px; border: 1px solid #0B6299; user-select: all; letter-spacing: 1px;">
+                        993 525 112
+                    </div>
+                    <button class="btn btn-sm mt-2" style="background-color: #0B6299; color: #FAFAFA; border-radius: 8px; padding: 6px 20px; transition: all 0.3s ease;"
+                            onmouseover="this.style.backgroundColor='#FFA600'; this.style.color='#070B12';" 
+                            onmouseout="this.style.backgroundColor='#0B6299'; this.style.color='#FAFAFA';"
+                            onclick="copiarNumero('993525112')">
+                        📋 Copiar número
+                    </button>
+                </div>
+
+                <!-- Banco asociado -->
+                <div class="text-center mb-3" style="background-color: #070B12; padding: 12px; border-radius: 8px; border: 1px solid #0B6299;">
+                    <span style="color: #a0a0a0;">🏦 Banco asociado: <strong style="color: #FFA600;">Interbank</strong></span>
+                </div>
+
+                <hr style="border-color: #0B6299;" />
+
+                <!-- Instrucciones -->
+                <div style="color: #a0a0a0; font-size: 14px;">
+                    <p><strong style="color: #FFA600;">📌 Instrucciones:</strong></p>
+                    <ol style="padding-left: 20px; line-height: 2;">
+                        <li>
+                            <strong style="color: #FFA600;">1.</strong> Abre la app de tu banco con <strong style="color: #FFA600;">Plin</strong> activado
+                        </li>
+                        <li>
+                            <strong style="color: #FFA600;">2.</strong> Escanea el QR <strong>(el monto ya está precargado)</strong>
+                        </li>
+                        <li>
+                            <strong style="color: #FFA600;">3.</strong> Verifica que el monto sea <strong style="color: #FFA600;">S/ @(Model.Total?.ToString("F2") ?? "0.00")</strong>
+                        </li>
+                        <li>
+                            <strong style="color: #FFA600;">4.</strong> Confirma el pago y espera la notificación
+                        </li>
+                        <li>
+                            <strong style="color: #FFA600;">5.</strong> Ingresa el <strong style="color: #FFA600;">número de operación</strong> en el campo de abajo
+                        </li>
+                    </ol>
+                </div>
+
+                <div class="alert alert-success mt-3" style="background-color: #0B6299; border: none; color: #FAFAFA; border-radius: 8px; padding: 12px;">
+                    <strong style="color: #FFA600;">✅ Ventaja:</strong>
+                    <span style="color: #a0a0a0;">El monto <strong style="color: #FFA600;">S/ @(Model.Total?.ToString("F2") ?? "0.00")</strong> 
+                    ya está precargado en el QR. Solo confirma el pago.</span>
+                </div>
+            </div>
+
+            <!-- Formulario para confirmar pago -->
+            <div class="card" style="background-color: #1A1F2E; border: none; border-radius: 12px; padding: 25px;">
+                <h5 style="color: #FFA600; font-weight: bold;">✅ Confirmar pago</h5>
+                <p style="color: #a0a0a0; font-size: 14px;">Ingresa el número de operación que te dio tu banco después de pagar.</p>
+                
+                <form method="post">
+                    <div class="mb-3">
+                        <label class="form-label" style="color: #FAFAFA;">🔑 Número de operación Plin</label>
+                        <input type="text" name="NroOperacion" class="form-control" 
+                               placeholder="Ej: PLIN-987654321"
+                               style="background-color: #070B12; color: #FAFAFA; border: 1px solid #0B6299; border-radius: 8px; padding: 12px;"
+                               required />
+                        <small style="color: #6c6c6c;">El número de operación aparece en la app de tu banco después de pagar</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label" style="color: #FAFAFA;">👤 Nombre del remitente (opcional)</label>
+                        <input type="text" name="Remitente" class="form-control" 
+                               placeholder="Tu nombre completo"
+                               style="background-color: #070B12; color: #FAFAFA; border: 1px solid #0B6299; border-radius: 8px; padding: 12px;" />
+                        <small style="color: #6c6c6c;">Ayuda a identificar tu pago más rápido</small>
+                    </div>
+
+                    <button type="submit" class="btn w-100" style="background-color: #FFA600; color: #070B12; font-weight: bold; border-radius: 8px; padding: 14px; font-size: 18px; transition: all 0.3s ease;"
+                            onmouseover="this.style.backgroundColor='#e69500';" 
+                            onmouseout="this.style.backgroundColor='#FFA600';">
+                        ✅ Confirmar Pago Plin
+                    </button>
+                    
+                    <a asp-page="/Pagos/Index" class="btn w-100 mt-2" style="background-color: #0B6299; color: #FAFAFA; border-radius: 8px; padding: 12px; transition: all 0.3s ease;"
+                       onmouseover="this.style.backgroundColor='#FFA600'; this.style.color='#070B12';" 
+                       onmouseout="this.style.backgroundColor='#0B6299'; this.style.color='#FAFAFA';">
+                        ← Volver a métodos de pago
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function copiarNumero(numero) {
+            const input = document.createElement('input');
+            input.value = numero;
+            document.body.appendChild(input);
+            input.select();
+            document.execCommand('copy');
+            document.body.removeChild(input);
+            showToast('✅ Número copiado: ' + numero);
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+                background-color: #0B6299; color: #FAFAFA; padding: 12px 24px;
+                border-radius: 8px; z-index: 9999; font-weight: bold;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                transition: opacity 0.3s ease;
+                max-width: 90%;
+                text-align: center;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+}

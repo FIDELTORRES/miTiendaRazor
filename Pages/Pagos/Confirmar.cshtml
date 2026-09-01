@@ -1,0 +1,105 @@
+@page
+@model miTienda.Pages.Pagos.ConfirmarModel
+@{
+    ViewData["Title"] = "Confirmar Pedido";
+    Layout = "_Layout";
+}
+
+<div class="container py-4" style="background-color: #070B12; min-height: 100vh; color: #FAFAFA;">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card" style="background-color: #1A1F2E; border: none; border-radius: 12px; padding: 32px;">
+                
+                @if (!User.Identity.IsAuthenticated)
+                {
+                    <!-- ⚠️ Usuario NO logueado - Mostrar opciones de login/registro -->
+                    <div class="text-center">
+                        <div style="font-size: 60px; margin-bottom: 20px;">🔐</div>
+                        <h3 style="color: #FAFAFA;">Para continuar, necesitas iniciar sesión</h3>
+                        <p style="color: #a0a0a0; margin-bottom: 30px;">
+                            Inicia sesión o crea una cuenta para completar tu pedido.
+                            <br />
+                            <span style="color: #FFA600;">¡Tu carrito se mantendrá!</span>
+                        </p>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <a asp-page="/Auth/Login" asp-route-returnUrl="/Pagos/Confirmar?metodo=@Model.Metodo" 
+                                   class="btn w-100" style="background-color: #0B6299; color: #FAFAFA; border-radius: 8px; padding: 14px; font-weight: bold; border: 1px solid #FFA600;">
+                                    Iniciar Sesión
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a asp-page="/Auth/Registro" asp-route-returnUrl="/Pagos/Confirmar?metodo=@Model.Metodo"
+                                   class="btn w-100" style="background-color: #FFA600; color: #070B12; border-radius: 8px; padding: 14px; font-weight: bold;">
+                                    Crear Cuenta
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <p style="color: #6c6c6c; font-size: 14px;">
+                                Al crear una cuenta podrás: <br />
+                                ✅ Ver el estado de tus pedidos <br />
+                                ✅ Guardar tus direcciones de envío <br />
+                                ✅ Acceder a ofertas exclusivas
+                            </p>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <!-- ✅ Usuario logueado - Mostrar formulario de confirmación -->
+                    <h4 style="color: #FFA600; font-weight: bold;">📦 Confirmar Pedido</h4>
+                    <p style="color: #a0a0a0;">Completa tus datos de envío para finalizar la compra.</p>
+                    <hr style="border-color: #0B6299;" />
+
+                    <form method="post">
+                        <input type="hidden" asp-for="Metodo" />
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label style="color: #FAFAFA;">Nombres y Apellidos</label>
+                                <input type="text" asp-for="Pedido.IdCliente" class="form-control" 
+                                       style="background-color: #070B12; color: #FAFAFA; border-color: #0B6299;" 
+                                       placeholder="Ej: Juan Pérez" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label style="color: #FAFAFA;">Teléfono</label>
+                                <input type="tel" asp-for="Pedido.IdCajero" class="form-control" 
+                                       style="background-color: #070B12; color: #FAFAFA; border-color: #0B6299;" 
+                                       placeholder="Ej: 987654321" required />
+                            </div>
+                            <div class="col-12">
+                                <label style="color: #FAFAFA;">Dirección de Envío</label>
+                                <textarea asp-for="Pedido.DireccionEntrega" class="form-control" rows="3" 
+                                          style="background-color: #070B12; color: #FAFAFA; border-color: #0B6299;" 
+                                          placeholder="Av. Principal 123, Urbanización..." required></textarea>
+                            </div>
+                            <div class="col-12">
+                                <label style="color: #FAFAFA;">Indicaciones adicionales (opcional)</label>
+                                <textarea asp-for="Pedido.Indicaciones" class="form-control" rows="2" 
+                                          style="background-color: #070B12; color: #FAFAFA; border-color: #0B6299;" 
+                                          placeholder="Ej: Piso 2, timbre, etc."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Resumen del pedido -->
+                        <hr style="border-color: #0B6299; margin-top: 24px;" />
+                        <div class="d-flex justify-content-between" style="font-size: 18px;">
+                            <span style="color: #FAFAFA;">Total a pagar:</span>
+                            <span style="color: #FFA600; font-weight: bold; font-size: 24px;">S/ @(Model.TotalConIgv.ToString("F2"))</span>
+                        </div>
+                        <p style="color: #8c8c8c; font-size: 14px;">Método de pago: <strong style="color: #FFA600;">@Model.MetodoPagoDisplay</strong></p>
+
+                        <button type="submit" class="btn w-100 mt-3" style="background-color: #FFA600; color: #070B12; font-weight: bold; border-radius: 8px; padding: 14px; font-size: 18px; transition: all 0.3s ease;"
+                                onmouseover="this.style.backgroundColor='#e69500';" 
+                                onmouseout="this.style.backgroundColor='#FFA600';">
+                            ✅ Confirmar Pedido
+                        </button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>

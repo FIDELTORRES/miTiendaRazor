@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using miTienda.Data;
 using miTienda.Models;
 using System;
 using System.Collections.Generic;
@@ -8,13 +9,13 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace miTienda.Pages.Productos;
+namespace miTienda.Pages.Admin.Productos;
 
 public class CrearModel : PageModel
 {
     private readonly MiTiendaContext _context;
     private readonly IWebHostEnvironment _environment;
-    private readonly string _rucEmisor = "20601063357";  // Tu RUC
+    private readonly string _rucEmisor = "10413820532";
 
     public CrearModel(MiTiendaContext context, IWebHostEnvironment environment)
     {
@@ -58,7 +59,7 @@ public class CrearModel : PageModel
         try
         {
             // ============================================================
-            // 📌 1. PROCESAR LA IMAGEN
+            // 1. PROCESAR LA IMAGEN
             // ============================================================
             if (Producto.ImagenFile != null && Producto.ImagenFile.Length > 0)
             {
@@ -91,7 +92,7 @@ public class CrearModel : PageModel
             }
 
             // ============================================================
-            // 📌 2. CREAR PRODUCTO PRINCIPAL
+            // 2. CREAR PRODUCTO PRINCIPAL
             // ============================================================
             var producto = new Producto
             {
@@ -100,16 +101,16 @@ public class CrearModel : PageModel
                 Nombre = Producto.Nombre,
                 Descripcion = Producto.Descripcion,
                 Imagen = nombreImagen,
-                IdCategoria = Producto.IdSubcategoria,
+                IdCategoria = Producto.IdSubcategoria,          // UNSPSC
                 IdPresentacion = 0,
-                IdSubcategoria = Producto.IdSubcategoria,
-                CategoriaPaginaId = Producto.IdSubcategoriaPagina,  // 🔧 Usa idsubcategoriapagina
-                Categorias = Producto.Categorias,
+                IdSubcategoria = Producto.IdSubcategoriaPagina, // 🔽 Subcategoría de página (Nivel 3)
+                CategoriaPaginaId = Producto.CategoriaPaginaId, // 🔽 Categoría de página (Nivel 2)
+                Categorias = Producto.Categorias,               // 🔽 Categoría propia (Nivel 1)
                 IdMedidas = Producto.IdMedidas,
                 IdMarca = Producto.IdMarca,
                 StockMinimo = Producto.StockMinimo,
                 StockMaximo = Producto.StockMaximo,
-                MargenPorcentaje = 0,  // 🔧 Siempre 0 según prompt
+                MargenPorcentaje = 0,
                 IdTipoAfectacion = Producto.IdTipoAfectacion ?? "10",
                 IdTipoFactura = Producto.IdTipoFactura ?? "0101",
                 IdCodigoDetalle = Producto.IdCodigoDetalle ?? "01",
@@ -122,39 +123,34 @@ public class CrearModel : PageModel
                 FlagComprobante = 0,
                 NombreArchi = Producto.ImagenFile?.FileName
             };
-
             _context.Productos.Add(producto);
             await _context.SaveChangesAsync();
 
             // ============================================================
-            // 📌 3. OBTENER TIENDAS ACTIVAS (estado = 2)
+            // 3. OBTENER TIENDAS ACTIVAS (estado = 2)
             // ============================================================
             var tiendasActivas = await _context.Tiendas
-                .Where(t => t.Estado == 2)  // 🔧 estado = 2 según prompt
+                .Where(t => t.Estado == 2)
                 .Select(t => t.IdLocal)
                 .ToListAsync();
 
-            // Si no hay tiendas activas, usar tienda 2 y 3 como fallback
             if (!tiendasActivas.Any())
             {
                 tiendasActivas = new List<int> { 2, 3 };
             }
 
             // ============================================================
-            // 📌 4. CREAR PRODUCTO EN TIENDA Y KARDEX (POR CADA TIENDA)
+            // 4. CREAR PRODUCTO EN TIENDA Y KARDEX (POR CADA TIENDA)
             // ============================================================
             foreach (var tiendaId in tiendasActivas)
             {
-                // 🔧 SIEMPRE stock = 0 según prompt
                 var productoTienda = new ProductoTienda
                 {
                     IdProducto = producto.IdProducto,
                     IdTienda = tiendaId,
                     Codbarra = Producto.Codbarra,
                     RucEmisor = _rucEmisor,
-                    Stock = 0,  // 🔧 Siempre 0
-                    // PrecioVenta = Producto.PrecioVenta ?? 0,
-                    // PrecioCompra = Producto.PrecioCompra ?? 0,
+                    Stock = 0,
                     Estado = Producto.Estado ?? 1,
                     UsuarioRegistro = User.Identity?.Name ?? "Sistema",
                     FechaRegistro = DateTime.Now,
@@ -167,25 +163,21 @@ public class CrearModel : PageModel
                 _context.ProductosTienda.Add(productoTienda);
                 await _context.SaveChangesAsync();
 
-                // ============================================================
-                // 📌 5. CREAR KARDEX POR CADA TIENDA (idflag = 1)
-                // ============================================================
                 var kardex = new Kardex
                 {
                     IdProducto = Producto.Codigo,
                     ProductoId = producto.IdProducto,
-                    Cantidad = 0,  // 🔧 Siempre 0 según prompt
+                    Cantidad = 0,
                     CantidadSalida = 0,
                     Fecha = DateOnly.FromDateTime(DateTime.Now),
                     Hora = TimeOnly.FromDateTime(DateTime.Now),
                     IdAlmacen = tiendaId,
                     IdLocal = tiendaId,
-                    Estado = 3,  // Inventario inicial
+                    Estado = 3,
                     RucEmisor = _rucEmisor,
                     IdUsuario = User.Identity?.Name ?? "Sistema",
                     Observacion = $"Registro inicial de producto en tienda {tiendaId}",
-                    // PrecioUnitario = Producto.PrecioCompra ?? 0,
-                    IdFlag = 1  // 🔧 idflag = 1 (Entrada/Apertura)
+                    IdFlag = 1
                 };
 
                 _context.Kardex.Add(kardex);
@@ -195,7 +187,7 @@ public class CrearModel : PageModel
             await transaction.CommitAsync();
 
             TempData["Success"] = $"✅ Producto '{producto.Nombre}' creado exitosamente en {tiendasActivas.Count} tienda(s)";
-            return RedirectToPage("../Index", new { tiendaFiltro = Producto.IdTienda });
+            return RedirectToPage("/Admin/Productos/Productos", new { tiendaFiltro = Producto.IdTienda });
         }
         catch (Exception ex)
         {
@@ -253,7 +245,7 @@ public class CrearModel : PageModel
             .ToListAsync();
 
         Tiendas = await _context.Tiendas
-            .Where(t => t.Estado == 2)  // 🔧 estado = 2 según prompt
+            .Where(t => t.Estado == 2)
             .OrderBy(t => t.IdLocal)
             .ToListAsync();
     }
@@ -305,9 +297,6 @@ public class CrearModel : PageModel
         return new JsonResult(new { codigo = nuevoCodigo });
     }
 
-    // ============================================================
-    // 📌 HANDLER AJAX PARA BUSCAR SUBCATEGORÍAS (Select2)
-    // ============================================================
     public async Task<IActionResult> OnGetBuscarSubcategoriasAsync(string term)
     {
         if (string.IsNullOrWhiteSpace(term))
@@ -323,8 +312,8 @@ public class CrearModel : PageModel
         }
 
         var subcategorias = await _context.Subcategorias
-            .Where(s => s.Estado == 1 && 
-                        (s.IdSubcategoria.ToString().Contains(term) || 
+            .Where(s => s.Estado == 1 &&
+                        (s.IdSubcategoria.ToString().Contains(term) ||
                          s.Descripcion.Contains(term)))
             .OrderBy(s => s.Descripcion)
             .Take(20)
@@ -332,5 +321,29 @@ public class CrearModel : PageModel
             .ToListAsync();
 
         return new JsonResult(new { results = subcategorias });
+    }
+
+    // 🔽 HANDLER PARA FILTRO EN CASCADA: CATEGORÍAS PÁGINA POR CATEGORÍA PROPIA
+    public async Task<IActionResult> OnGetCategoriasPaginaPorCategoriaPropiaAsync(int idCategoriaPropia)
+    {
+        var categoriasPagina = await _context.CategoriasPagina
+            .Where(cp => cp.IdCategoriapropia == idCategoriaPropia && cp.Estado == 1)
+            .OrderBy(cp => cp.Descripcion)
+            .Select(cp => new { id = cp.IdCategoriapagina, descripcion = cp.Descripcion }) // ← nombres en minúscula
+            .ToListAsync();
+
+        return new JsonResult(categoriasPagina);
+    }
+
+    // 🔽 HANDLER PARA FILTRO EN CASCADA: SUBCATEGORÍAS PÁGINA POR CATEGORÍA PÁGINA
+    public async Task<IActionResult> OnGetSubcategoriasPaginaPorCategoriaPaginaAsync(int idCategoriaPagina)
+    {
+        var subcategoriasPagina = await _context.SubcategoriasPagina
+            .Where(sp => sp.IdCategoriapagina == idCategoriaPagina && sp.Estado == 1)
+            .OrderBy(sp => sp.Descripcion)
+            .Select(sp => new { id = sp.IdSubcategoriapagina, descripcion = sp.Descripcion }) // ← nombres en minúscula
+            .ToListAsync();
+
+        return new JsonResult(subcategoriasPagina);
     }
 }

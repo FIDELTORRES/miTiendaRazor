@@ -19,7 +19,7 @@ public class Categoriapagina
 
     [Column("idsubcategoria")]
     [MaxLength(20)]
-    public string IdSubcategoria { get; set; } = string.Empty;
+    public string IdSubcategoria { get; set; } = string.Empty;  // ← Volver a string
 
     [Column("imagen")]
     [MaxLength(100)]
@@ -27,4 +27,16 @@ public class Categoriapagina
 
     [Column("estado")]
     public int Estado { get; set; } = 1;
+
+
+    // ============================================================
+    // 🔽 PROPIEDADES DE NAVEGACIÓN (RELACIONES)
+    // ============================================================
+
+    /// <summary>
+    /// Relación con Categoriapropia (Nivel 1)
+    /// </summary>
+    /// [ForeignKey(nameof(IdCategoriapropia))]
+    [ForeignKey("IdCategoriapropia")]
+    public virtual Categoriapropia? Categoriapropia { get; set; }
 }

@@ -1,0 +1,23 @@
+@page "{id:int}"
+@model miTienda.Pages.Pagos.ExitosoModel
+@{
+    ViewData["Title"] = "Pago Exitoso";
+    Layout = "_Layout";
+}
+
+<div class="container py-5 text-center" style="background-color: #070B12; min-height: 100vh; color: #FAFAFA;">
+    <div style="font-size: 80px; margin-bottom: 20px;">✅</div>
+    <h1 style="color: #FFA600;">¡Pago Exitoso!</h1>
+    <p style="font-size: 18px; color: #a0a0a0;">
+        Tu pedido <strong style="color: #FFA600;">#@Model.PedidoId</strong> ha sido registrado correctamente.
+    </p>
+    <p style="color: #8c8c8c;">Recibirás un correo con los detalles de tu compra.</p>
+    
+    <div class="mt-4">
+        <a asp-page="/Web/Index" class="btn" style="background-color: #FFA600; color: #070B12; font-weight: bold; border-radius:8px; padding:10px 30px; transition: all 0.3s ease;"
+           onmouseover="this.style.backgroundColor='#e69500';" 
+           onmouseout="this.style.backgroundColor='#FFA600';">
+            ← Seguir comprando
+        </a>
+    </div>
+</div>

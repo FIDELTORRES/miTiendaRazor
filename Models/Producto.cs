@@ -14,6 +14,8 @@ namespace miTienda.Models;
 /// - categoriapagina_id → Apunta a Categoriapagina.idcategoriapagina (desde app categorias)
 /// - categorias → Apunta a Categoriapropia.idcategoriapropia (desde app categorias)
 /// </summary>
+
+
 [Table("producto")]
 public class Producto
 {

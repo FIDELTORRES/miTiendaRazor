@@ -1,0 +1,497 @@
+/* ============================================================
+   ESTILOS PARA LA VISTA EN MÓVIL (CARDS)
+   ============================================================ */
+.card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background-color: #1A1F2E !important;   /* ← Fondo oscuro estándar */
+    border-color: #2d3348 !important;
+}
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+.card-header {
+    border-bottom: 1px solid #2d3348;
+}
+.card-header.bg-primary {
+    background: linear-gradient(135deg, #0B6299, #0a4f7a) !important;
+    border-bottom: 2px solid #FFA600 !important;
+}
+.card-title {
+    color: #FAFAFA !important;
+    font-weight: 600;
+}
+.text-light {
+    color: #FAFAFA !important;
+}
+.text-muted {
+    color: #8a8fa8 !important;
+    font-size: 12px;
+}
+.badge {
+    font-size: 11px;
+    padding: 4px 10px;
+}
+
+/* ============================================================
+   ESTILOS GENERALES DE FORMULARIOS Y CONTROLES (AGREGADOS)
+   ============================================================ */
+.form-label {
+    color: #b0b5cc;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 5px;
+    letter-spacing: 0.2px;
+}
+
+.form-control,
+.form-select {
+    background-color: #141824;
+    border: 1.5px solid #2d3348;
+    border-radius: 8px;
+    color: #FAFAFA;
+    font-size: 14px;
+    padding: 8px 12px;
+    transition: all 0.3s ease;
+}
+
+.form-control::placeholder {
+    color: #5a5f7a;
+    font-size: 13px;
+}
+
+.form-control:focus,
+.form-select:focus {
+    background-color: #1a1f2e;
+    border-color: #FFA600;
+    color: #FAFAFA;
+    box-shadow: 0 0 0 3px rgba(255, 166, 0, 0.15);
+    outline: none;
+}
+
+.form-select option {
+    background-color: #141824;
+    color: #FAFAFA;
+}
+
+/* ============================================================
+   ESTILOS DE BOTONES ADICIONALES (AGREGADOS)
+   ============================================================ */
+.btn-primary {
+    background-color: #579ed7;
+    border-color: #579ed7;
+    color: #FAFAFA;
+    transition: all 0.2s ease;
+}
+.btn-primary:hover {
+    background-color: #FFA600;
+    border-color: #FFA600;
+    color: #070B12;
+}
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+    color: #FAFAFA;
+    transition: all 0.2s ease;
+}
+.btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+    color: #FAFAFA;
+}
+
+.btn-secondary {
+    background-color: #4a5070;
+    border-color: #4a5070;
+    color: #FAFAFA;
+    transition: all 0.2s ease;
+}
+.btn-secondary:hover {
+    background-color: #5d648c;
+    border-color: #5d648c;
+    color: #FAFAFA;
+}
+
+.btn-info {
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+    color: #FAFAFA;
+}
+.btn-info:hover {
+    background-color: #138496;
+    border-color: #117a8b;
+    color: #FAFAFA;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: #FAFAFA;
+}
+.btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+    color: #FAFAFA;
+}
+
+.btn-sm {
+    padding: 4px 8px;
+    font-size: 14px;
+}
+
+/* ============================================================
+   ESTILOS PARA LA PAGINACIÓN
+   ============================================================ */
+.pagination .page-link {
+    background-color: #1A1F2E;
+    border-color: #2d3348;
+    color: #FAFAFA;
+    padding: 6px 12px;
+    font-size: 14px;
+    transition: background-color 0.2s, color 0.2s;
+}
+.pagination .page-link:hover {
+    background-color: #0B6299;
+    border-color: #0B6299;
+    color: #FAFAFA;
+}
+.pagination .page-item.active .page-link {
+    background-color: #FFA600;
+    border-color: #FFA600;
+    color: #070B12;
+    font-weight: bold;
+}
+.pagination .page-item.disabled .page-link {
+    background-color: #1A1F2E;
+    border-color: #2d3348;
+    color: #5a5f7a;
+    opacity: 0.6;
+}
+
+/* ============================================================
+   AJUSTES PARA PANTALLAS MUY PEQUEÑAS (móviles)
+   ============================================================ */
+@media (max-width: 576px) {
+    .pagination .page-link {
+        font-size: 12px;
+        padding: 4px 8px;
+    }
+    .pagination .page-item:not(.active):not(.d-sm-block) {
+        display: none !important;
+    }
+    .btn-primary {
+        font-size: 14px;
+        padding: 6px 12px;
+    }
+    h2 {
+        font-size: 20px;
+    }
+}
+
+/* ============================================================
+   AJUSTES PARA TABLETS (pantallas medianas)
+   ============================================================ */
+@media (min-width: 577px) and (max-width: 991px) {
+    .pagination .page-link {
+        font-size: 13px;
+        padding: 5px 10px;
+    }
+}
+
+/* ============================================================
+   ESTILOS PARA LA TABLA
+   ============================================================ */
+.table {
+    color: #FAFAFA;
+    background-color: transparent;
+}
+.table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+.table-hover > tbody > tr:hover {
+    background-color: rgba(255, 166, 0, 0.08);
+}
+.table thead th {
+    border-bottom: 2px solid #2d3348;
+    background-color: #2d3348;
+    color: #FFA600;
+    font-weight: 600;
+}
+.table tbody td {
+    border-bottom: 1px solid #2d3348;
+    vertical-align: middle;
+}
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Badges extendidos */
+.badge.bg-success {
+    background-color: #28a745 !important;
+}
+.badge.bg-danger {
+    background-color: #dc3545 !important;
+}
+.badge.bg-secondary {
+    background-color: #6c757d !important;
+}
+.badge.bg-info {
+    background-color: #17a2b8 !important;
+    color: #ffffff !important;
+}
+.badge.bg-warning {
+    background-color: #ffc107 !important;
+    color: #121212 !important;
+}
+
+.alert {
+    background-color: #1A1F2E;
+    border-color: #2d3348;
+    color: #FAFAFA;
+}
+.alert-success {
+    border-color: #28a745;
+}
+.alert-danger {
+    border-color: #dc3545;
+}
+.alert-warning {
+    background-color: #2c2512;
+    border-color: #ffc107;
+    color: #ffda6a;
+}
+hr {
+    border-color: #2d3348;
+}
+
+/* ============================================================
+   📌 ESTILOS PARA EL FORMULARIO DE BÚSQUEDA PERSONALIZADO
+   ============================================================ */
+
+/* Contenedor del card de búsqueda */
+.card-busqueda {
+    background: #1A1F2E !important;
+    border: 1px solid #2d3348 !important;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.card-busqueda:hover {
+    box-shadow: 0 6px 28px rgba(0, 0, 0, 0.4);
+}
+
+/* Header del card */
+.card-busqueda .card-header {
+    background: linear-gradient(135deg, #0B6299, #0a4f7a);
+    border-bottom: 2px solid #FFA600;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.card-busqueda .card-header i {
+    font-size: 20px;
+    color: #0B6299;
+}
+
+.card-busqueda .card-header strong {
+    color: #FAFAFA;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+/* Cuerpo del card */
+.card-busqueda .card-body {
+    padding: 10px 16px !important;
+}
+
+/* Labels */
+.card-busqueda .form-label {
+    color: #8a8fa8;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.card-busqueda .form-control-sm:focus,
+.card-busqueda .form-select-sm:focus {
+    background-color: #1a1f2e;
+    border-color: #FFA600;
+    color: #FAFAFA;
+    box-shadow: 0 0 0 2px rgba(255, 166, 0, 0.2);
+    outline: none;
+}
+.card-busqueda select.form-select-sm option {
+    background-color: #141824;
+    color: #FAFAFA;
+}
+
+.card-busqueda .btn-sm {
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 13px;
+}
+/* Inputs y Selects */
+.card-busqueda .form-control,
+.card-busqueda .form-select {
+    background-color: #b6e7f5;
+    border: 1.5px solid #2d3348;
+    border-radius: 8px;
+    color: #000102;
+    font-size: 14px;
+    padding: 10px 14px;
+    transition: all 0.3s ease;
+    height: 44px;
+}
+
+.card-busqueda .form-control::placeholder {
+    color: #5a5f7a;
+    font-size: 13px;
+}
+
+.card-busqueda .form-control:focus,
+.card-busqueda .form-select:focus {
+    border-color: #FFA600;
+    box-shadow: 0 0 0 3px rgba(255, 166, 0, 0.15);
+    background-color: #ffffff;
+    outline: none;
+}
+
+.card-busqueda .form-control:hover,
+.card-busqueda .form-select:hover {
+    border-color: #4a5070;
+}
+
+/* Botón Buscar */
+.card-busqueda .btn-buscar {
+    background: linear-gradient(135deg, #579ed7, #579ed7);
+    border: none;
+    border-radius: 8px;
+    color: #fefefe;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 10px 24px;
+    height: 44px;
+    transition: all 0.3s ease;
+    letter-spacing: 0.3px;
+}
+
+.card-busqueda .btn-buscar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(255, 166, 0, 0.35);
+    background: linear-gradient(135deg, #ffb320, #e69500);
+}
+
+.card-busqueda .btn-buscar:active {
+    transform: translateY(0px);
+}
+
+.card-busqueda .btn-buscar i {
+    margin-right: 6px;
+    font-size: 16px;
+}
+
+/* Botón Limpiar */
+.card-busqueda .btn-limpiar {
+    background: #6c7070;
+    border: 1.5px solid #6c7070;
+    border-radius: 8px;
+    color: #b0b5cc;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 10px 20px;
+    height: 44px;
+    transition: all 0.3s ease;
+}
+
+.card-busqueda .btn-limpiar:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: #6a7090;
+    color: #FAFAFA;
+}
+
+.card-busqueda .btn-limpiar i {
+    margin-right: 6px;
+    font-size: 16px;
+}
+
+/* Grupo de botones */
+.card-busqueda .d-flex-gap {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* ============================================================
+   RESPONSIVE PARA FORMULARIO DE BÚSQUEDA
+   ============================================================ */
+@media (max-width: 768px) {
+    .card-busqueda .card-body {
+        padding: 16px;
+    }
+    
+    .card-busqueda .form-control,
+    .card-busqueda .form-select,
+    .card-busqueda .btn-buscar,
+    .card-busqueda .btn-limpiar {
+        font-size: 13px;
+        height: 40px;
+        padding: 8px 12px;
+    }
+    
+    .card-busqueda .btn-buscar,
+    .card-busqueda .btn-limpiar {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .card-busqueda .d-flex-gap {
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
+    .card-busqueda .card-header strong {
+        font-size: 14px;
+    }
+    
+    .card-busqueda .card-header i {
+        font-size: 16px;
+    }
+}
+
+/* ============================================================
+   ESTILOS PARA FILTROS EN MODO OSCURO (compatibilidad)
+   ============================================================ */
+.card-busqueda .form-control option,
+.card-busqueda .form-select option {
+    background-color: #0d171f;
+    color: #FAFAFA;
+}
+
+/* Select2 dentro del card de búsqueda */
+.card-busqueda .select2-container--default .select2-selection--single {
+    background-color: #0d111f;
+    border: 1.5px solid #2d3348;
+    border-radius: 8px;
+    height: 44px;
+    padding: 6px 12px;
+}
+
+.card-busqueda .select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: #FAFAFA;
+    line-height: 30px;
+}
+
+.card-busqueda .select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 40px;
+}

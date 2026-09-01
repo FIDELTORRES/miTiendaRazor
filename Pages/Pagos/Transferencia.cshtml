@@ -1,0 +1,43 @@
+@page
+@model miTienda.Pages.Pagos.TransferenciaModel
+@{
+    ViewData["Title"] = "Pago por Transferencia";
+    Layout = "_Layout";
+}
+
+<div class="container py-5" style="background-color: #070B12; min-height: 100vh; color: #FAFAFA;">
+    <h2 style="color: #FAFAFA; font-weight: bold;">🏦 Pago por Transferencia Bancaria</h2>
+    <hr style="border-color: #0B6299;" />
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card" style="background-color: #1A1F2E; border: none; border-radius: 12px; padding: 20px;">
+                <form method="post">
+                    <div class="mb-3">
+                        <label class="form-label" style="color: #FAFAFA;">Fecha de la transferencia</label>
+                        <input type="date" name="Fecha" class="form-control" style="background-color: #070B12; color: #FAFAFA; border: 1px solid #0B6299;" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" style="color: #FAFAFA;">Hora de la transferencia</label>
+                        <input type="time" name="Hora" class="form-control" style="background-color: #070B12; color: #FAFAFA; border: 1px solid #0B6299;" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" style="color: #FAFAFA;">Número de transacción</label>
+                        <input type="text" name="NroTransaccion" class="form-control" style="background-color: #070B12; color: #FAFAFA; border: 1px solid #0B6299;" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" style="color: #FAFAFA;">Monto transferido</label>
+                        <input type="number" step="0.01" name="Monto" class="form-control" style="background-color: #070B12; color: #FAFAFA; border: 1px solid #0B6299;" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" style="color: #FAFAFA;">Nombre y apellidos del remitente</label>
+                        <input type="text" name="Remitente" class="form-control" style="background-color: #070B12; color: #FAFAFA; border: 1px solid #0B6299;" required />
+                    </div>
+                    <button type="submit" class="btn w-100" style="background-color: #FFA600; color: #070B12; font-weight: bold; border-radius: 8px; padding: 12px;">
+                        Confirmar Pago
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

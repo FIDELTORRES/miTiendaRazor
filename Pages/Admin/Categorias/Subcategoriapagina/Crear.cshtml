@@ -1,0 +1,130 @@
+@page
+@model miTienda.Pages.Admin.Categorias.Subcategoriapagina.CrearModel
+@{
+    ViewData["Title"] = "Nueva Subcategoría Página";
+    Layout = "_LayoutAdmin";
+}
+
+<!-- 
+    ============================================================
+    📌 ENCABEZADO
+    ============================================================
+-->
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+    <h2 class="mb-2 mb-md-0">📂 Nueva Subcategoría Página (Nivel 3)</h2>
+    <a asp-page="./Index" class="btn btn-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Volver al listado
+    </a>
+</div>
+
+<hr />
+
+<!-- ============================================================ -->
+<!-- 📌 MENSAJES DE ÉXITO/ERROR                                   -->
+<!-- ============================================================ -->
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-1"></i> @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<!-- ============================================================ -->
+<!-- 📌 FORMULARIO                                                -->
+<!-- ============================================================ -->
+<div class="card">
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+
+            <!-- ============================================================ -->
+            <!-- CATEGORÍA PÁGINA (Select)                                     -->
+            <!-- ============================================================ -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="SubcategoriaPagina.IdCategoriapagina" class="form-label fw-bold">
+                        Categoría Página <span class="text-danger">*</span>
+                    </label>
+                    <select asp-for="SubcategoriaPagina.IdCategoriapagina" class="form-select">
+                        <option value="">-- Seleccione Categoría Página --</option>
+                        @foreach (var cat in Model.CategoriasPagina)
+                        {
+                            <option value="@cat.IdCategoriapagina">@cat.Descripcion</option>
+                        }
+                    </select>
+                    <span asp-validation-for="SubcategoriaPagina.IdCategoriapagina" class="text-danger"></span>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- DESCRIPCIÓN                                                  -->
+            <!-- ============================================================ -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="SubcategoriaPagina.Descripcion" class="form-label fw-bold">
+                        Descripción <span class="text-danger">*</span>
+                    </label>
+                    <input asp-for="SubcategoriaPagina.Descripcion" class="form-control" 
+                           placeholder="Ingrese la descripción" />
+                    <span asp-validation-for="SubcategoriaPagina.Descripcion" class="text-danger"></span>
+                    <small class="form-text text-muted">Máximo 255 caracteres</small>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- IMAGEN (opcional)                                            -->
+            <!-- ============================================================ -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="ImagenFile" class="form-label fw-bold">Imagen (opcional)</label>
+                    <input asp-for="ImagenFile" class="form-control" type="file" accept="image/*" />
+                    <small class="form-text text-muted">
+                        <i class="bi bi-info-circle me-1"></i> Formatos: JPG, PNG, WEBP (Máx 2MB)
+                    </small>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- ESTADO (Radio Buttons)                                       -->
+            <!-- ============================================================ -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Estado</label>
+                    <div>
+                        <div class="form-check form-check-inline">
+                            <input type="radio" asp-for="SubcategoriaPagina.Estado" value="1" 
+                                   class="form-check-input" id="estadoActivo" checked />
+                            <label class="form-check-label" for="estadoActivo">
+                                <i class="bi bi-check-circle text-success"></i> Activo
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input type="radio" asp-for="SubcategoriaPagina.Estado" value="0" 
+                                   class="form-check-input" id="estadoInactivo" />
+                            <label class="form-check-label" for="estadoInactivo">
+                                <i class="bi bi-x-circle text-danger"></i> Inactivo
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- BOTONES                                                      -->
+            <!-- ============================================================ -->
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save me-1"></i> Guardar
+                </button>
+                <a asp-page="./Index" class="btn btn-secondary">
+                    <i class="bi bi-x-lg me-1"></i> Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

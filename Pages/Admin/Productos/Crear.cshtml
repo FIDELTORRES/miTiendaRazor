@@ -1,7 +1,8 @@
 @page
-@model miTienda.Pages.Productos.CrearModel
+@model miTienda.Pages.Admin.Productos.CrearModel
 @{
     ViewData["Title"] = "📦 Nuevo Producto";
+    Layout = "_LayoutAdmin";
 }
 
 <h2>📦 Nuevo Producto</h2>
@@ -169,12 +170,13 @@
             </div>
 
             <!-- ============================================================ -->
-            <!-- CLASIFICACIÓN TIENDA (WEB)                                   -->
+            <!-- SECCIÓN CON FILTROS EN CASCADA - CLASIFICACIÓN TIENDA (WEB)  -->
             <!-- ============================================================ -->
             <div class="row mt-4">
                 <div class="col-12">
                     <h5 class="border-bottom pb-2">Clasificación Tienda (Web)</h5>
                 </div>
+                <!-- NIVEL 1: Categorías (Categoriapropia) -->
                 <div class="col-md-3 mb-3">
                     <label asp-for="Producto.Categorias" class="form-label fw-bold">Categorías</label>
                     <select asp-for="Producto.Categorias" class="form-select" id="categorias">
@@ -185,26 +187,21 @@
                         }
                     </select>
                 </div>
+                <!-- NIVEL 2: Categoría/página (depende de Categorías) -->
                 <div class="col-md-3 mb-3">
-                    <label asp-for="Producto.CategoriaPaginaId" class="form-label fw-bold">Categoría/pagina Id</label>
+                    <label asp-for="Producto.CategoriaPaginaId" class="form-label fw-bold">Categoría/página Id</label>
                     <select asp-for="Producto.CategoriaPaginaId" class="form-select" id="categoriapagina_id">
                         <option value="">-- Seleccione Categoría Página --</option>
-                        @foreach (var cp in Model.CategoriasPagina)
-                        {
-                            <option value="@cp.IdCategoriapagina">@cp.Descripcion</option>
-                        }
                     </select>
                 </div>
+                <!-- NIVEL 3: Subcategoría Página (depende de Categoría/página) -->
                 <div class="col-md-3 mb-3">
                     <label asp-for="Producto.IdSubcategoriaPagina" class="form-label fw-bold">Subcategoría Página</label>
                     <select asp-for="Producto.IdSubcategoriaPagina" class="form-select" id="idsubcategoriapagina">
                         <option value="">-- Seleccione Subcategoría Página --</option>
-                        @foreach (var sp in Model.SubcategoriasPagina)
-                        {
-                            <option value="@sp.IdSubcategoriapagina">@sp.Descripcion</option>
-                        }
                     </select>
                 </div>
+                <!-- Marca (independiente) -->
                 <div class="col-md-3 mb-3">
                     <label asp-for="Producto.IdMarca" class="form-label fw-bold">Marca</label>
                     <select asp-for="Producto.IdMarca" class="form-select" id="idmarca">
@@ -260,7 +257,6 @@
                 </div>
             </div>
 
-            
             <!-- ============================================================ -->
             <!-- BOTONES                                                      -->
             <!-- ============================================================ -->
@@ -268,7 +264,7 @@
                 <button type="submit" class="btn btn-primary" id="btnGuardar">
                     <i class="fas fa-save"></i> Guardar Producto
                 </button>
-                <a asp-page="../Index" class="btn btn-secondary">
+                <a asp-page="/Admin/Productos/Productos" class="btn btn-secondary">
                     <i class="fas fa-times"></i> Cancelar
                 </a>
             </div>
@@ -384,7 +380,7 @@
         // ============================================================ 
         // VARIABLES GLOBALES
         // ============================================================ 
-        var esEdicion = false;  // Para crear es false
+        var esEdicion = false;  // Modo creación
 
         // ============================================================ 
         // BLOQUEAR/DESBLOQUEAR CAMPOS
@@ -444,13 +440,47 @@
         }
 
         // ============================================================ 
+        // FUNCIÓN PARA CARGAR SELECTS VÍA AJAX (FILTROS EN CASCADA)
+        // ============================================================ 
+        function cargarSelect(url, selectId, valorSeleccionado, textoDefault) {
+            console.log('📡 Cargando select:', selectId, 'desde URL:', url);
+            $.ajax({
+                url: url,
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    console.log('✅ Datos recibidos para', selectId, ':', data);
+                    var $select = $(selectId);
+                    $select.empty();
+                    $select.append('<option value="">' + textoDefault + '</option>');
+                    if (Array.isArray(data) && data.length > 0) {
+                        $.each(data, function(i, item) {
+                            var selected = (item.id == valorSeleccionado) ? 'selected' : '';
+                            $select.append('<option value="' + item.id + '" ' + selected + '>' + item.descripcion + '</option>');
+                        });
+                    } else {
+                        console.warn('⚠️ No se recibieron datos para', selectId);
+                    }
+                    // ✅ NO se dispara change aquí
+                },
+                error: function(xhr, status, error) {
+                    console.error('❌ Error al cargar opciones para', selectId);
+                    console.error('   Status:', status);
+                    console.error('   Error:', error);
+                    console.error('   Response:', xhr.responseText);
+                    $(selectId).empty().append('<option value="">-- Error al cargar --</option>');
+                }
+            });
+        }
+
+        // ============================================================ 
         // DOCUMENT READY
         // ============================================================ 
         $(document).ready(function() {
-            console.log('✅ DOM listo');
+            console.log('✅ DOM listo - Modo Creación');
 
             // ============================================================ 
-            // INICIALIZAR SELECT2 CON BÚSQUEDA AJAX
+            // INICIALIZAR SELECT2 CON BÚSQUEDA AJAX (Categoría Oficial)
             // ============================================================ 
             var $select = $('#idsubcategoria');
             
@@ -582,6 +612,36 @@
             });
 
             // ============================================================ 
+            // FILTROS EN CASCADA: NIVEL 1 (Categorías) → NIVEL 2
+            // ============================================================ 
+            $('#categorias').on('change', function() {
+                var idCategoriaPropia = $(this).val();
+                console.log('🔍 Categoría seleccionada (ID):', idCategoriaPropia);
+                if (idCategoriaPropia && idCategoriaPropia !== '') {
+                    var url = '/Admin/Productos/Crear?handler=CategoriasPaginaPorCategoriaPropia&idCategoriaPropia=' + encodeURIComponent(idCategoriaPropia);
+                    cargarSelect(url, '#categoriapagina_id', null, '-- Seleccione Categoría Página --');
+                } else {
+                    $('#categoriapagina_id').empty().append('<option value="">-- Seleccione Categoría Página --</option>');
+                    $('#idsubcategoriapagina').empty().append('<option value="">-- Seleccione Subcategoría Página --</option>');
+                }
+            });
+
+            // ============================================================ 
+            // FILTROS EN CASCADA: NIVEL 2 (Categoría/página) → NIVEL 3
+            // ============================================================ 
+            $('#categoriapagina_id').off('change').on('change', function() {
+                var idCategoriaPagina = $(this).val();
+                console.log('🔍 Categoría página seleccionada (ID):', idCategoriaPagina);
+                if (idCategoriaPagina && idCategoriaPagina !== '' && !isNaN(idCategoriaPagina)) {
+                    var url = '/Admin/Productos/Crear?handler=SubcategoriasPaginaPorCategoriaPagina&idCategoriaPagina=' + encodeURIComponent(idCategoriaPagina);
+                    // Si es Editar, usa: '/Admin/Productos/Editar/' + productoId + '?handler=...'
+                    cargarSelect(url, '#idsubcategoriapagina', null, '-- Seleccione Subcategoría Página --');
+                } else {
+                    $('#idsubcategoriapagina').empty().append('<option value="">-- Seleccione Subcategoría Página --</option>');
+                }
+            });
+
+            // ============================================================ 
             // VALIDACIÓN ANTES DE ENVIAR
             // ============================================================ 
             $('#productoForm').on('submit', function(e) {
@@ -633,7 +693,7 @@
         });
 
         // ============================================================ 
-        // FUNCIONES AUXILIARES
+        // FUNCIÓN PARA GENERAR CÓDIGO DE PRODUCTO
         // ============================================================ 
         function generarCodigoProducto(idsubcategoria) {
             console.log('🔍 Generando código para:', idsubcategoria);

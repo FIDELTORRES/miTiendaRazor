@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using miTienda.Data;
 using miTienda.Models;
 using System;
 using System.Threading.Tasks;

@@ -23,4 +23,8 @@ public class Subcategoriapagina
     [Column("imagen")]
     [MaxLength(100)]
     public string? Imagen { get; set; }
+
+    // 🔥 AGREGAR ESTA PROPIEDAD DE NAVEGACIÓN
+    [ForeignKey("IdCategoriapagina")]
+    public virtual Categoriapagina? Categoriapagina { get; set; }
 }

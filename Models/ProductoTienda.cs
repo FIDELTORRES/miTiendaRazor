@@ -41,7 +41,7 @@ public class ProductoTienda
     public decimal? PrecioCompra { get; set; }  
 
     [Column("estado")]
-    public int Estado { get; set; }
+    public int? Estado { get; set; }
 
     [Column("usuarioregistro")]
     [MaxLength(50)]

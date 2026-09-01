@@ -3,11 +3,13 @@ using System.ComponentModel.DataAnnotations;
 
 namespace miTienda.Models;
 
-public class ProductoCreateViewModel
+public class ProductoEditViewModel
 {
     // ============================================================
     // 📌 DATOS DEL PRODUCTO
     // ============================================================
+    public int IdProducto { get; set; }
+
     [Required(ErrorMessage = "El código es obligatorio")]
     [MaxLength(50)]
     public string Codigo { get; set; } = string.Empty;
@@ -22,8 +24,8 @@ public class ProductoCreateViewModel
     [MaxLength(255)]
     public string? Descripcion { get; set; }
 
-    public string? Imagen { get; set; }
-    public IFormFile? ImagenFile { get; set; }
+    public string? Imagen { get; set; }  // Nombre de la imagen actual
+    public IFormFile? ImagenFile { get; set; }  // Nueva imagen (opcional)
 
     // ============================================================
     // 📌 CLASIFICACIÓN OFICIAL (UNSPSC)
@@ -34,16 +36,11 @@ public class ProductoCreateViewModel
     // ============================================================
     // 📌 STOCK Y PRECIOS
     // ============================================================
+    public int? IdCategoria { get; set; }  // 🔧 IdCategoria (UNSPSC)
     public int? IdMedidas { get; set; }
     public decimal? StockMinimo { get; set; }
     public decimal? StockMaximo { get; set; }
     public decimal? MargenPorcentaje { get; set; }
-
-    // ============================================================
-    // 📌 PRECIOS DE VENTA Y COMPRA
-    // ============================================================
-    // public decimal? PrecioVenta { get; set; }
-    // public decimal? PrecioCompra { get; set; }
 
     // ============================================================
     // 📌 CONTROL
@@ -54,9 +51,9 @@ public class ProductoCreateViewModel
     // ============================================================
     // 📌 CLASIFICACIÓN TIENDA (WEB)
     // ============================================================
-    public int? Categorias { get; set; }  // Categoriapropia
-    public int? CategoriaPaginaId { get; set; }  // Categoriapagina
-    public int? IdSubcategoriaPagina { get; set; }  //  Subcategoriapagina
+    public int? Categorias { get; set; }
+    public int? CategoriaPaginaId { get; set; }
+    public int? IdSubcategoriaPagina { get; set; }
     public int? IdMarca { get; set; }
 
     // ============================================================
@@ -80,11 +77,19 @@ public class ProductoCreateViewModel
     public decimal? Impuesto { get; set; } = 18.00m;
 
     // ============================================================
-    // 📌 DATOS DE TIENDA
+    // 📌 DATOS DE PRODUCTO TIENDA (para mostrar)
     // ============================================================
-    public int IdTienda { get; set; } = 2;
+    public List<ProductoTiendaEdit> ProductosTienda { get; set; } = new();
+}
 
-    // 🔧 Este campo se usa en el formulario pero se ignora al guardar
-    // El stock siempre será 0 en todas las tiendas según prompt
-    public decimal? StockInicial { get; set; } = 0;
+public class ProductoTiendaEdit
+{
+    public int Id { get; set; }
+    public int IdTienda { get; set; }
+    public string? NombreTienda { get; set; }
+    public string? Codbarra { get; set; }
+    public decimal? Stock { get; set; }
+    public decimal? PrecioVenta { get; set; }
+    public decimal? PrecioCompra { get; set; }
+    public int? Estado { get; set; }
 }

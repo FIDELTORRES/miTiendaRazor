@@ -1,13 +1,14 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using miTienda.Data;
 using miTienda.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace miTienda.Pages;
+namespace miTienda.Pages.Admin.Productos;
 
 public class ProductosModel : PageModel
 {
@@ -143,7 +144,7 @@ public class ProductosModel : PageModel
         }
 
         // Mantener los filtros después de la operación
-        return RedirectToPage(new
+        return RedirectToPage("/Admin/Productos/Productos",new
         {
             tiendaFiltro = TiendaFiltro,
             codbarraFiltro = CodbarraFiltro,

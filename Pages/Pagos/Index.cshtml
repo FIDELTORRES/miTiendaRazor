@@ -1,0 +1,171 @@
+@page
+@model miTienda.Pages.Pagos.IndexModel
+@{
+    ViewData["Title"] = "Método de Pago";
+    Layout = "_Layout";
+}
+
+<div class="container py-5" style="background-color: #070B12; min-height: 100vh; color: #FAFAFA;">
+    <h4 style="color: #FAFAFA; font-weight: bold;">💳 Selecciona tu método de pago</h4>
+    <hr style="border-color: #0B6299;" />
+    
+    <!-- Resumen del pedido -->
+    <div class="card mb-4" style="background-color: #1A1F2E; color: #FAFAFA; border: none; border-radius: 12px; padding: 20px;">
+        <h5 style="color: #FFA600; font-weight: bold;">📋 Resumen del pedido</h5>
+        <div class="row">
+            <div class="col-md-8">
+                @if (Model.Items != null && Model.Items.Any())
+                {
+                    foreach (var item in Model.Items)
+                    {
+                        <div class="d-flex justify-content-between align-items-center border-bottom" style="border-color: #0B6299 !important; padding: 8px 0;">
+                            <span>@item.Nombre x @item.Cantidad</span>
+                            <span style="color: #FFA600;">S/ @(item.Subtotal?.ToString("F2") ?? "0.00")</span>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p style="color: #a0a0a0;">Tu carrito está vacío.</p>
+                }
+            </div>
+            <div class="col-md-4">
+                <div style="background-color: #070B12; padding: 15px; border-radius: 8px; border: 1px solid #0B6299;">
+                    <div class="d-flex justify-content-between">
+                        <span>Subtotal:</span>
+                        <span style="color: #FFA600;">S/ @(Model.Subtotal?.ToString("F2") ?? "0.00")</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>IGV (18%):</span>
+                        <span style="color: #FFA600;">S/ @(Model.Igv?.ToString("F2") ?? "0.00")</span>
+                    </div>
+                    <hr style="border-color: #0B6299; margin: 8px 0;" />
+                    <div class="d-flex justify-content-between fw-bold" style="font-size: 18px;">
+                        <span>Total:</span>
+                        <span style="color: #FFA600;">S/ @(Model.Total?.ToString("F2") ?? "0.00")</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Métodos de pago -->
+    <div class="row g-4">
+        <!-- Yape -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100" style="background-color: #1A1F2E; border: 1px solid #0B6299; border-radius: 12px; cursor: pointer; transition: all 0.3s ease;"
+                 onmouseover="this.style.transform='translateY(-6px)'; this.style.boxShadow='0 8px 24px rgba(255,166,0,0.2)';"
+                 onmouseout="this.style.transform='none'; this.style.boxShadow='none';"
+                 onclick="window.location.href='/Pagos/Yape'">
+                <div class="card-body text-center p-4">
+                    <!-- ✅ Logo Yape -->
+                    <div style="height: 80px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                        <img src="~/images/pagos/yape-logo.png" alt="Yape" 
+                             style="max-height: 70px; object-fit: contain;"
+                             onerror='this.style.display="none"; this.parentElement.innerHTML="<div style=\"font-size:60px;\">📱</div>";' />
+                    </div>
+                    <h5 style="color: #FAFAFA; font-weight: bold;">Yape</h5>
+                    <p style="color: #a0a0a0; font-size: 14px;">Paga al instante con la app Yape</p>
+                    <div style="background-color: #070B12; padding: 8px; border-radius: 8px; margin-top: 10px;">
+                        <span style="color: #FFA600; font-weight: bold;">⭐ Rápido y seguro</span>
+                    </div>
+                    <button class="btn w-100 mt-3" style="background-color: #FFA600; color: #070B12; font-weight: bold; border-radius: 8px; padding: 10px;"
+                            onmouseover="this.style.backgroundColor='#e69500';" 
+                            onmouseout="this.style.backgroundColor='#FFA600';">
+                        Pagar con Yape
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Plin -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100" style="background-color: #1A1F2E; border: 1px solid #0B6299; border-radius: 12px; cursor: pointer; transition: all 0.3s ease;"
+                 onmouseover="this.style.transform='translateY(-6px)'; this.style.boxShadow='0 8px 24px rgba(255,166,0,0.2)';"
+                 onmouseout="this.style.transform='none'; this.style.boxShadow='none';"
+                 onclick="window.location.href='/Pagos/Plin'">
+                <div class="card-body text-center p-4">
+                    <!-- ✅ Logo Plin -->
+                    <div style="height: 80px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                        <img src="~/images/pagos/plin-logo.png" alt="Plin" 
+                             style="max-height: 70px; object-fit: contain;"
+                             onerror='this.style.display="none"; this.parentElement.innerHTML="<div style=\"font-size:60px;\">💳</div>";' />
+                    </div>
+                    <h5 style="color: #FAFAFA; font-weight: bold;">Plin</h5>
+                    <p style="color: #a0a0a0; font-size: 14px;">Paga con Plin desde tu banco</p>
+                    <div style="background-color: #070B12; padding: 8px; border-radius: 8px; margin-top: 10px;">
+                        <span style="color: #FFA600; font-weight: bold;">🏦 Interbank</span>
+                    </div>
+                    <button class="btn w-100 mt-3" style="background-color: #FFA600; color: #070B12; font-weight: bold; border-radius: 8px; padding: 10px;"
+                            onmouseover="this.style.backgroundColor='#e69500';" 
+                            onmouseout="this.style.backgroundColor='#FFA600';">
+                        Pagar con Plin
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transferencia Bancaria -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100" style="background-color: #1A1F2E; border: 1px solid #0B6299; border-radius: 12px; cursor: pointer; transition: all 0.3s ease;"
+                 onmouseover="this.style.transform='translateY(-6px)'; this.style.boxShadow='0 8px 24px rgba(255,166,0,0.2)';"
+                 onmouseout="this.style.transform='none'; this.style.boxShadow='none';"
+                 onclick="window.location.href='/Pagos/Transferencia'">
+                <div class="card-body text-center p-4">
+                    <!-- ✅ Logo Transferencia -->
+                    <div style="height: 80px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                        <img src="~/images/pagos/transferencia.png" alt="Transferencia" 
+                             style="max-height: 70px; object-fit: contain;"
+                             onerror='this.style.display="none"; this.parentElement.innerHTML="<div style=\"font-size:60px;\">🏦</div>";' />
+                    </div>
+                    <h5 style="color: #FAFAFA; font-weight: bold;">Transferencia Bancaria</h5>
+                    <p style="color: #a0a0a0; font-size: 14px;">Depósito o transferencia a nuestra cuenta</p>
+                    <div style="background-color: #070B12; padding: 8px; border-radius: 8px; margin-top: 10px;">
+                        <span style="color: #FFA600; font-weight: bold;">📄 BCP / Interbank</span>
+                    </div>
+                    <button class="btn w-100 mt-3" style="background-color: #FFA600; color: #070B12; font-weight: bold; border-radius: 8px; padding: 10px;"
+                            onmouseover="this.style.backgroundColor='#e69500';" 
+                            onmouseout="this.style.backgroundColor='#FFA600';">
+                        Pagar con Transferencia
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Efectivo (contra entrega) - Solo Lima -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100" style="background-color: #1A1F2E; border: 1px solid #0B6299; border-radius: 12px; cursor: pointer; transition: all 0.3s ease;"
+                 onmouseover="this.style.transform='translateY(-6px)'; this.style.boxShadow='0 8px 24px rgba(255,166,0,0.2)';"
+                 onmouseout="this.style.transform='none'; this.style.boxShadow='none';"
+                 onclick="window.location.href='/Pagos/Efectivo'">
+                <div class="card-body text-center p-4">
+                    <!-- ✅ Logo Efectivo -->
+                    <div style="height: 80px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                        <img src="~/images/pagos/efectivo.png" alt="Efectivo" 
+                             style="max-height: 70px; object-fit: contain;"
+                             onerror='this.style.display="none"; this.parentElement.innerHTML="<div style=\"font-size:60px;\">💰</div>";' />
+                    </div>
+                    <h5 style="color: #FAFAFA; font-weight: bold;">Efectivo</h5>
+                    <p style="color: #a0a0a0; font-size: 14px;">Paga al recibir tu pedido</p>
+                    <div style="background-color: #070B12; padding: 8px; border-radius: 8px; margin-top: 10px;">
+                        <span style="color: #FFA600; font-weight: bold;">📍 Solo Lima</span>
+                    </div>
+                    <button class="btn w-100 mt-3" style="background-color: #FFA600; color: #070B12; font-weight: bold; border-radius: 8px; padding: 10px;"
+                            onmouseover="this.style.backgroundColor='#e69500';" 
+                            onmouseout="this.style.backgroundColor='#FFA600';">
+                        Pagar en Efectivo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botón volver al carrito -->
+    <div class="mt-4 text-center">
+        <a asp-page="/Web/Carrito" class="btn" style="background-color: #0B6299; color: #FAFAFA; border-radius: 8px; padding: 10px 30px; font-weight: bold; transition: all 0.3s ease;"
+           onmouseover="this.style.backgroundColor='#FFA600'; this.style.color='#070B12';" 
+           onmouseout="this.style.backgroundColor='#0B6299'; this.style.color='#FAFAFA';">
+            ← Volver al Carrito
+        </a>
+    </div>
+</div>

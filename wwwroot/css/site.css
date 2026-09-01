@@ -29,6 +29,24 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+/* Mostrar dropdown al pasar el mouse */
+.dropdown:hover .dropdown-menu {
+    display: block;
+    margin-top: 0; /* elimina el espacio que deja Bootstrap */
+}
+
+/* Mostrar dropdown al pasar el mouse en desktop */
+@media (min-width: 992px) {
+    .dropdown:hover .dropdown-menu {
+        display: block !important;
+    }
+    .dropdown .dropdown-menu {
+        margin-top: 0;
+    }
+}
+/* Para móviles, que el dropdown se abra al hacer clic (Bootstrap lo maneja) */
+
 /* Estilos para Select2 personalizado */
 .select2-container--default .select2-results__option--highlighted[aria-selected] {
     background-color: #0d6efd !important;

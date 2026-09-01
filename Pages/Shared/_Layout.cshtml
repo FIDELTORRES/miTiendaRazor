@@ -1,60 +1,398 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+﻿﻿<!DOCTYPE html>
+<html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Mi Tienda Online</title>
-    <script type="importmap"></script>
+    <title>@ViewData["Title"] - MiTienda</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <!-- En el <head> o al final del <body> -->
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/miTienda.styles.css" asp-append-version="true" />
+    <style>
+        /* Estilos globales */
+        body {
+            background-color: #070B12;
+            color: #FAFAFA;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Menú de Categorías Supermercado (3 Niveles) */
+        .mega-menu-dropdown {
+            min-width: 850px;
+            background-color: #1A1F2E;
+            border: 1px solid #0B6299;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            padding: 0;
+            overflow: hidden;
+        }
+
+        /* Panel Nivel 1 (Columna Izquierda) */
+        .menu-nivel1-list {
+            background-color: #0B6299;
+            min-height: 420px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .menu-nivel1-item {
+            color: #FAFAFA;
+            padding: 12px 18px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.2s ease;
+        }
+
+        .menu-nivel1-item:hover, .menu-nivel1-item.active {
+            background-color: #FFA600;
+            color: #070B12;
+        }
+
+        /* Panel Nivel 2 y 3 (Columna Derecha) */
+        .menu-nivel2-container {
+            padding: 20px;
+            background-color: #1A1F2E;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .nivel2-title {
+            color: #FFA600;
+            font-size: 15px;
+            font-weight: bold;
+            text-transform: uppercase;
+            border-bottom: 1px solid #0B6299;
+            padding-bottom: 6px;
+            margin-bottom: 10px;
+        }
+
+        .nivel3-link {
+            color: #FAFAFA;
+            text-decoration: none;
+            font-size: 13.5px;
+            display: block;
+            padding: 4px 0;
+            transition: color 0.2s ease;
+        }
+
+        .nivel3-link:hover {
+            color: #FFA600;
+            padding-left: 4px;
+        }
+
+        /* Ocultar/mostrar dinamismo de paneles */
+        .nivel2-panel {
+            display: none;
+        }
+        .nivel2-panel.active {
+            display: flex;
+        }
+
+        /* Estilos para tarjetas de productos */
+        .product-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .product-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 8px 24px rgba(255,166,0,0.2);
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">🛒 MiTienda</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
+    <!-- SE AGREGO ESTE INPUT PARA EL TOKEN ANTIFALSIFICACIÓN -->
+    @Html.AntiForgeryToken()
+
+    <!-- ========================================== -->
+    <!-- NAVBAR PRINCIPAL (GLOBAL)                  -->
+    <!-- ========================================== -->
+    <nav class="navbar navbar-expand-lg sticky-top" style="background-color: #0B6299; padding: 10px 0; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
+        <div class="container">
+            <!-- Logo -->
+            <a class="navbar-brand me-4" href="/Web" style="color: #FAFAFA; font-weight: bold; font-size: 24px;">
+                🛒 Elfide.com
+            </a>
+
+            <!-- Botón Desplegable de Categorías (Estilo Supermercado) -->
+            <div class="dropdown me-3">
+                <button class="btn d-flex align-items-center gap-2 fw-bold" type="button" id="btnCategorias" data-bs-toggle="dropdown" aria-expanded="false"
+                        style="background-color: #FFA600; color: #070B12; border-radius: 8px; padding: 8px 16px;">
+                    <span>☰</span>
+                    <span>Categorías</span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-page="/Productos">Productos</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-page="/Contacto">Contacto</a>
-                        </li>
-                    </ul>
+
+                <!-- Menú Mega Dropdown de 3 Niveles -->
+                <div class="dropdown-menu mega-menu-dropdown p-0 m-0" aria-labelledby="btnCategorias">
+                    <div class="row g-0">
+                        
+                        <!-- NIVEL 1: Categorías Principales (Izquierda) -->
+                        <div class="col-4 menu-nivel1-list">
+                            @{
+                                var categorias = ViewData["CategoriasNivel1"] as List<miTienda.Models.CategoriaNivel1>;
+                            }
+                            @if (categorias != null && categorias.Any())
+                            {
+                                var index = 0;
+                                foreach (var nivel1 in categorias)
+                                {
+                                    var isActive = index == 0 ? "active" : "";
+                                    <div class="menu-nivel1-item @isActive" data-target="cat-@nivel1.IdCategoriapropia">
+                                        <span>@nivel1.CategoriaPropiaDesc</span>
+                                        <small>❯</small>
+                                    </div>
+                                    index++;
+                                }
+                            }
+                        </div>
+
+                        <!-- NIVEL 2 y 3: Subcategorías y Productos (Derecha) -->
+                        <div class="col-8 menu-nivel2-container">
+                            @if (categorias != null && categorias.Any())
+                            {
+                                var index = 0;
+                                foreach (var nivel1 in categorias)
+                                {
+                                    var isActive = index == 0 ? "active" : "";
+                                    <div class="row row-cols-2 g-3 nivel2-panel @isActive" id="cat-@nivel1.IdCategoriapropia">
+                                        @foreach (var nivel2 in nivel1.Nivel2)
+                                        {
+                                            <div class="col mb-3">
+                                                <!-- Nivel 2: Título -->
+                                                <div class="nivel2-title">
+                                                    @nivel2.CategoriaPaginaDesc
+                                                </div>
+                                                <!-- Nivel 3: Enlaces finales -->
+                                                <ul class="list-unstyled mb-0">
+                                                    @foreach (var nivel3 in nivel2.Nivel3)
+                                                    {
+                                                        <li>
+                                                            <a class="nivel3-link" asp-page="/Web/Index" 
+                                                               asp-route-categoriaId="@nivel3.IdSubcategoria"
+                                                               asp-route-busqueda="@(ViewData["Busqueda"] ?? "")">
+                                                                @nivel3.SubcategoriaPaginaDesc
+                                                            </a>
+                                                        </li>
+                                                    }
+                                                </ul>
+                                            </div>
+                                        }
+                                    </div>
+                                    index++;
+                                }
+                            }
+                        </div>
+
+                    </div>
                 </div>
             </div>
-        </nav>
-    </header>
-    <div class="container">
+
+            <!-- Buscador -->
+            <div class="mx-auto d-none d-md-block" style="flex: 1; max-width: 450px;">
+                <form class="d-flex" asp-page="/Web/Index" method="get">
+                    <input class="form-control me-2" type="search" name="busqueda" 
+                           placeholder="Buscar por nombre, código, descripción..." 
+                           value="@(ViewData["Busqueda"] ?? "")" 
+                           style="background-color: #1A1F2E; color: #FAFAFA; border: 1px solid #FFA600; border-radius: 20px; padding: 6px 16px;">
+                    <button class="btn" type="submit" style="background-color: #FFA600; color: #070B12; border-radius: 20px; padding: 6px 20px; font-weight: bold;">
+                        Buscar
+                    </button>
+                </form>
+            </div>
+
+            <!-- Carrito y Cuenta -->
+            <div class="d-flex align-items-center ms-auto">
+                <a asp-page="/Web/Carrito" class="btn position-relative me-3" style="color: #FAFAFA; font-size: 22px; padding: 0 8px;">
+                    🛒
+                    <span id="carritoCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill" 
+                          style="background-color: #FFA600; color: #070B12; font-size: 12px; font-weight: bold; padding: 4px 7px;">
+                        0
+                    </span>
+                </a>
+                <a href="#" class="btn d-none d-md-block" style="color: #FAFAFA; font-size: 14px;">
+                    Mi Cuenta
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ========================================== -->
+    <!-- CONTENIDO PRINCIPAL                       -->
+    <!-- ========================================== -->
+    <div class="container-fluid p-0">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - miTienda - <a asp-area="" asp-page="/Privacy">Privacy</a>
+    <!-- ========================================== -->
+    <!-- FOOTER                                    -->
+    <!-- ========================================== -->
+    <footer class="border-top footer text-muted" style="background-color: #070B12; color: #FAFAFA; padding: 20px 0;">
+        <div class="container text-center">
+            &copy; @DateTime.Now.Year - Elfide.com - Todos los derechos reservados
         </div>
     </footer>
 
+    <!-- ========================================== -->
+    <!-- SCRIPTS                                   -->
+    <!-- ========================================== -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Manejar la interacción Hover/Click en el Nivel 1 del Menú
+            const nivel1Items = document.querySelectorAll('.menu-nivel1-item');
+            const nivel2Panels = document.querySelectorAll('.nivel2-panel');
+
+            nivel1Items.forEach(item => {
+                item.addEventListener('mouseenter', function () {
+                    nivel1Items.forEach(i => i.classList.remove('active'));
+                    nivel2Panels.forEach(p => p.classList.remove('active'));
+                    this.classList.add('active');
+                    const targetId = this.getAttribute('data-target');
+                    const targetPanel = document.getElementById(targetId);
+                    if (targetPanel) {
+                        targetPanel.classList.add('active');
+                    }
+                });
+            });
+
+            const dropdownMenu = document.querySelector('.mega-menu-dropdown');
+            if (dropdownMenu) {
+                dropdownMenu.addEventListener('click', function (e) {
+                    if (!e.target.classList.contains('nivel3-link')) {
+                        e.stopPropagation();
+                    }
+                });
+            }
+
+            const searchInput = document.querySelector('input[name="busqueda"]');
+            if (searchInput) {
+                const urlParams = new URLSearchParams(window.location.search);
+                const busqueda = urlParams.get('busqueda');
+                if (busqueda) {
+                    searchInput.value = busqueda;
+                }
+            }
+
+            // ✅ Actualizar contador al cargar la página
+            actualizarContadorCarrito();
+        });
+
+        /**
+        * Función global para agregar productos al carrito
+        * {number} productoId - ID del producto
+        * {string} nombre - Nombre del producto (no se usa pero se mantiene por compatibilidad)
+        * {number} precio - Precio del producto (no se usa pero se mantiene por compatibilidad)
+        */
+        function agregarAlCarrito(productoId, nombre, precio) {
+            // Mostrar mensaje de carga
+            showToast('⏳ Agregando producto...');
+            
+            // ✅ Obtener el token antifalsificación correctamente
+            const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+            const token = tokenInput ? tokenInput.value : '';
+            
+            // ✅ Construir los headers correctamente
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            
+            // Solo agregar el token si existe
+            if (token) {
+                headers['RequestVerificationToken'] = token;
+            }
+            
+            // Realizar la petición POST al servidor
+            fetch('/Web/Carrito?handler=Add', {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify({ 
+                    productoId: productoId, 
+                    cantidad: 1 
+                })
+            })
+            .then(response => {
+                // Verificar si la respuesta es exitosa
+                if (!response.ok) {
+                    // Si es 400, intentar leer el mensaje de error del servidor
+                    return response.json().then(data => {
+                        throw new Error(data.message || `Error HTTP: ${response.status}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Actualizar el contador del carrito en la interfaz
+                    const counter = document.getElementById('carritoCount');
+                    if (counter) {
+                        counter.textContent = data.totalItems;
+                    }
+                    showToast('✅ Producto agregado al carrito');
+                } else {
+                    // Si el servidor devuelve un mensaje de error
+                    const errorMsg = data.message || 'Error al agregar el producto';
+                    showToast('❌ ' + errorMsg);
+                }
+            })
+            .catch(error => {
+                // Capturar errores de red o del servidor
+                console.error('Error al agregar al carrito:', error);
+                showToast('❌ ' + error.message);
+            });
+        }
+
+        /**
+        * Muestra un mensaje tipo toast en la parte inferior de la pantalla
+        *  {string} message - Mensaje a mostrar
+        */
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+                background-color: #0B6299; color: #FAFAFA; padding: 12px 24px;
+                border-radius: 8px; z-index: 9999; font-weight: bold;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                transition: opacity 0.3s ease;
+                max-width: 90%;
+                text-align: center;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        /**
+        * Actualiza el contador del carrito consultando al servidor
+        */
+        function actualizarContadorCarrito() {
+            fetch('/Web/Carrito?handler=Count')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Error HTTP: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.totalItems !== undefined) {
+                        const counter = document.getElementById('carritoCount');
+                        if (counter) {
+                            counter.textContent = data.totalItems;
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al actualizar contador:', error);
+                });
+        }
+    </script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
