@@ -7,14 +7,18 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <style>
-        /* Estilos globales */
+        /* ============================================================
+           ESTILOS GLOBALES
+           ============================================================ */
         body {
             background-color: #070B12;
             color: #FAFAFA;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        /* Menú de Categorías Supermercado (3 Niveles) */
+        /* ============================================================
+           MENÚ DE CATEGORÍAS (MEGA MENÚ DE 3 NIVELES)
+           ============================================================ */
         .mega-menu-dropdown {
             min-width: 850px;
             background-color: #1A1F2E;
@@ -25,7 +29,7 @@
             overflow: hidden;
         }
 
-        /* Panel Nivel 1 (Columna Izquierda) */
+        /* Panel Nivel 1 (Columna Izquierda - Categorías Principales) */
         .menu-nivel1-list {
             background-color: #0B6299;
             min-height: 420px;
@@ -45,12 +49,13 @@
             transition: all 0.2s ease;
         }
 
-        .menu-nivel1-item:hover, .menu-nivel1-item.active {
+        .menu-nivel1-item:hover,
+        .menu-nivel1-item.active {
             background-color: #FFA600;
             color: #070B12;
         }
 
-        /* Panel Nivel 2 y 3 (Columna Derecha) */
+        /* Panel Nivel 2 y 3 (Columna Derecha - Subcategorías) */
         .menu-nivel2-container {
             padding: 20px;
             background-color: #1A1F2E;
@@ -82,7 +87,7 @@
             padding-left: 4px;
         }
 
-        /* Ocultar/mostrar dinamismo de paneles */
+        /* Control de visibilidad de paneles */
         .nivel2-panel {
             display: none;
         }
@@ -90,7 +95,9 @@
             display: flex;
         }
 
-        /* Estilos para tarjetas de productos */
+        /* ============================================================
+           TARJETAS DE PRODUCTOS
+           ============================================================ */
         .product-card {
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
@@ -98,23 +105,83 @@
             transform: translateY(-6px);
             box-shadow: 0 8px 24px rgba(255,166,0,0.2);
         }
+
+        /* ============================================================
+           ESTILOS PARA ENLACES DE USUARIO EN EL NAVBAR
+           ============================================================ */
+        .nav-user-link {
+            color: #FAFAFA;
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+
+        .nav-user-link:hover {
+            background-color: #1A1F2E;
+            color: #FFA600;
+        }
+
+        .nav-user-link.user-name {
+            color: #FFA600;
+            font-weight: bold;
+        }
+
+        .nav-user-link.logout {
+            color: #ff6b6b;
+        }
+
+        .nav-user-link.logout:hover {
+            background-color: #2a1a1a;
+            color: #ff4444;
+        }
+
+        .nav-user-link.login {
+            color: #FAFAFA;
+        }
+
+        .nav-user-link.login:hover {
+            color: #FFA600;
+        }
+
+        .nav-user-link.register {
+            color: #FFA600;
+            font-weight: bold;
+        }
+
+        .nav-user-link.register:hover {
+            color: #e69500;
+        }
+
+        /* Separador vertical entre enlaces */
+        .nav-separator {
+            color: #0B6299;
+            padding: 0 4px;
+        }
     </style>
 </head>
 <body>
-    <!-- SE AGREGO ESTE INPUT PARA EL TOKEN ANTIFALSIFICACIÓN -->
+    <!-- ============================================================
+    TOKEN ANTIFALSIFICACIÓN (para protección CSRF)
+    ============================================================ -->
     @Html.AntiForgeryToken()
 
-    <!-- ========================================== -->
-    <!-- NAVBAR PRINCIPAL (GLOBAL)                  -->
-    <!-- ========================================== -->
+    <!-- ============================================================
+    NAVBAR PRINCIPAL (GLOBAL)
+    ============================================================ -->
     <nav class="navbar navbar-expand-lg sticky-top" style="background-color: #0B6299; padding: 10px 0; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
         <div class="container">
-            <!-- Logo -->
+            <!-- ============================================================
+            LOGO - Enlace a la página principal
+            ============================================================ -->
             <a class="navbar-brand me-4" href="/Web" style="color: #FAFAFA; font-weight: bold; font-size: 24px;">
                 🛒 Elfide.com
             </a>
 
-            <!-- Botón Desplegable de Categorías (Estilo Supermercado) -->
+            <!-- ============================================================
+            BOTÓN DESPLEGABLE DE CATEGORÍAS (MEGA MENÚ)
+            ============================================================ -->
             <div class="dropdown me-3">
                 <button class="btn d-flex align-items-center gap-2 fw-bold" type="button" id="btnCategorias" data-bs-toggle="dropdown" aria-expanded="false"
                         style="background-color: #FFA600; color: #070B12; border-radius: 8px; padding: 8px 16px;">
@@ -122,11 +189,11 @@
                     <span>Categorías</span>
                 </button>
 
-                <!-- Menú Mega Dropdown de 3 Niveles -->
+                <!-- Mega Dropdown de 3 Niveles -->
                 <div class="dropdown-menu mega-menu-dropdown p-0 m-0" aria-labelledby="btnCategorias">
                     <div class="row g-0">
-                        
-                        <!-- NIVEL 1: Categorías Principales (Izquierda) -->
+
+                        <!-- NIVEL 1: Categorías Principales (Columna Izquierda) -->
                         <div class="col-4 menu-nivel1-list">
                             @{
                                 var categorias = ViewData["CategoriasNivel1"] as List<miTienda.Models.CategoriaNivel1>;
@@ -146,7 +213,7 @@
                             }
                         </div>
 
-                        <!-- NIVEL 2 y 3: Subcategorías y Productos (Derecha) -->
+                        <!-- NIVEL 2 y 3: Subcategorías (Columna Derecha) -->
                         <div class="col-8 menu-nivel2-container">
                             @if (categorias != null && categorias.Any())
                             {
@@ -158,16 +225,16 @@
                                         @foreach (var nivel2 in nivel1.Nivel2)
                                         {
                                             <div class="col mb-3">
-                                                <!-- Nivel 2: Título -->
+                                                <!-- Nivel 2: Título de la categoría -->
                                                 <div class="nivel2-title">
                                                     @nivel2.CategoriaPaginaDesc
                                                 </div>
-                                                <!-- Nivel 3: Enlaces finales -->
+                                                <!-- Nivel 3: Enlaces finales (productos/subcategorías) -->
                                                 <ul class="list-unstyled mb-0">
                                                     @foreach (var nivel3 in nivel2.Nivel3)
                                                     {
                                                         <li>
-                                                            <a class="nivel3-link" asp-page="/Web/Index" 
+                                                            <a class="nivel3-link" asp-page="/Web/Index"
                                                                asp-route-categoriaId="@nivel3.IdSubcategoria"
                                                                asp-route-busqueda="@(ViewData["Busqueda"] ?? "")">
                                                                 @nivel3.SubcategoriaPaginaDesc
@@ -187,12 +254,14 @@
                 </div>
             </div>
 
-            <!-- Buscador -->
+            <!-- ============================================================
+            BUSCADOR DE PRODUCTOS
+            ============================================================ -->
             <div class="mx-auto d-none d-md-block" style="flex: 1; max-width: 450px;">
                 <form class="d-flex" asp-page="/Web/Index" method="get">
-                    <input class="form-control me-2" type="search" name="busqueda" 
-                           placeholder="Buscar por nombre, código, descripción..." 
-                           value="@(ViewData["Busqueda"] ?? "")" 
+                    <input class="form-control me-2" type="search" name="busqueda"
+                           placeholder="Buscar por nombre, código, descripción..."
+                           value="@(ViewData["Busqueda"] ?? "")"
                            style="background-color: #1A1F2E; color: #FAFAFA; border: 1px solid #FFA600; border-radius: 20px; padding: 6px 16px;">
                     <button class="btn" type="submit" style="background-color: #FFA600; color: #070B12; border-radius: 20px; padding: 6px 20px; font-weight: bold;">
                         Buscar
@@ -200,57 +269,123 @@
                 </form>
             </div>
 
-            <!-- Carrito y Cuenta -->
+            <!-- ============================================================
+            SECCIÓN DE USUARIO Y CARRITO (PARTE DERECHA DEL NAVBAR)
+            ============================================================ -->
             <div class="d-flex align-items-center ms-auto">
-                <a asp-page="/Web/Carrito" class="btn position-relative me-3" style="color: #FAFAFA; font-size: 22px; padding: 0 8px;">
+
+                <!-- ============================================================
+                CARRITO DE COMPRAS (siempre visible)
+                ============================================================ -->
+                <a asp-page="/Web/Carrito" class="btn position-relative me-3" style="color: #FAFAFA; font-size: 22px; padding: 0 8px;" title="Ver carrito">
                     🛒
-                    <span id="carritoCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill" 
+                    <!-- Contador de items en el carrito -->
+                    <span id="carritoCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill"
                           style="background-color: #FFA600; color: #070B12; font-size: 12px; font-weight: bold; padding: 4px 7px;">
                         0
                     </span>
                 </a>
-                <a href="#" class="btn d-none d-md-block" style="color: #FAFAFA; font-size: 14px;">
-                    Mi Cuenta
-                </a>
-            </div>
-        </div>
-    </nav>
 
-    <!-- ========================================== -->
-    <!-- CONTENIDO PRINCIPAL                       -->
-    <!-- ========================================== -->
+                <!-- ============================================================
+                ZONA DE AUTENTICACIÓN: Login / Registro / Cerrar Sesión
+                ============================================================ -->
+                <div class="d-flex align-items-center gap-2">
+
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        // ============================================================
+                        // USUARIO LOGUEADO - Mostrar nombre y botón de cerrar sesión
+                        // ============================================================
+
+                        <!-- Nombre del usuario logueado -->
+                        <span class="nav-user-link user-name">
+                            👋 @User.Identity.Name
+                        </span>
+
+                        <!-- Separador visual -->
+                        <span class="nav-separator">|</span>
+
+                        <!-- Botón de Cerrar Sesión -->
+                        <a asp-page="/Auth/Logout" class="nav-user-link logout" title="Cerrar Sesión">
+                            Cerrar Sesión
+                        </a>
+                    }
+                    else
+                    {
+                        // ============================================================
+                        // USUARIO NO LOGUEADO - Mostrar opciones de Login y Registro
+                        // ============================================================
+
+                        <!-- Botón de Iniciar Sesión -->
+                        <a asp-page="/Auth/Login" class="nav-user-link login" title="Iniciar Sesión">
+                            🔐 Iniciar Sesión
+                        </a>
+
+                        <!-- Separador visual -->
+                        <span class="nav-separator">|</span>
+
+                        <!-- Botón de Registrarse -->
+                        <a asp-page="/Auth/Registro" class="nav-user-link register" title="Crear cuenta">
+                            📝 Registrarse
+                        </a>
+                    }
+
+                </div>
+                <!-- Fin de zona de autenticación -->
+
+            </div>
+            <!-- Fin de sección usuario y carrito -->
+
+        </div>
+        <!-- Fin del container -->
+    </nav>
+    <!-- Fin del navbar -->
+
+    <!-- ============================================================
+    CONTENIDO PRINCIPAL DE LA PÁGINA
+    ============================================================ -->
     <div class="container-fluid p-0">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <!-- ========================================== -->
-    <!-- FOOTER                                    -->
-    <!-- ========================================== -->
+    <!-- ============================================================
+    FOOTER (Pie de página)
+    ============================================================ -->
     <footer class="border-top footer text-muted" style="background-color: #070B12; color: #FAFAFA; padding: 20px 0;">
         <div class="container text-center">
             &copy; @DateTime.Now.Year - Elfide.com - Todos los derechos reservados
         </div>
     </footer>
 
-    <!-- ========================================== -->
-    <!-- SCRIPTS                                   -->
-    <!-- ========================================== -->
+    <!-- ============================================================
+    SCRIPTS (JavaScript)
+    ============================================================ -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
     <script>
+        /**
+         * ============================================================
+         * CONFIGURACIÓN DEL MENÚ DE CATEGORÍAS
+         * Maneja la interacción hover/click en el mega menú
+         * ============================================================ */
         document.addEventListener('DOMContentLoaded', function () {
-            // Manejar la interacción Hover/Click en el Nivel 1 del Menú
+
+            // Elementos del menú de categorías
             const nivel1Items = document.querySelectorAll('.menu-nivel1-item');
             const nivel2Panels = document.querySelectorAll('.nivel2-panel');
 
+            // Al hacer hover sobre un item de nivel 1, mostrar su panel correspondiente
             nivel1Items.forEach(item => {
                 item.addEventListener('mouseenter', function () {
+                    // Remover clase 'active' de todos los items y paneles
                     nivel1Items.forEach(i => i.classList.remove('active'));
                     nivel2Panels.forEach(p => p.classList.remove('active'));
+
+                    // Activar el item actual y su panel
                     this.classList.add('active');
                     const targetId = this.getAttribute('data-target');
                     const targetPanel = document.getElementById(targetId);
@@ -260,6 +395,7 @@
                 });
             });
 
+            // Evitar que el dropdown se cierre al hacer clic dentro del menú
             const dropdownMenu = document.querySelector('.mega-menu-dropdown');
             if (dropdownMenu) {
                 dropdownMenu.addEventListener('click', function (e) {
@@ -269,6 +405,9 @@
                 });
             }
 
+            // ============================================================
+            // RESTAURAR VALOR DEL BUSCADOR DESDE LA URL
+            // ============================================================ */
             const searchInput = document.querySelector('input[name="busqueda"]');
             if (searchInput) {
                 const urlParams = new URLSearchParams(window.location.search);
@@ -278,100 +417,118 @@
                 }
             }
 
-            // ✅ Actualizar contador al cargar la página
+            // ============================================================
+            // ACTUALIZAR CONTADOR DEL CARRITO AL CARGAR LA PÁGINA
+            // ============================================================ */
             actualizarContadorCarrito();
+
+            // ============================================================
+            // ACTUALIZAR CONTADOR CADA 30 SEGUNDOS (para mantenerlo sincronizado)
+            // ============================================================ */
+            setInterval(actualizarContadorCarrito, 30000);
         });
 
+
         /**
-        * Función global para agregar productos al carrito
-        * {number} productoId - ID del producto
-        * {string} nombre - Nombre del producto (no se usa pero se mantiene por compatibilidad)
-        * {number} precio - Precio del producto (no se usa pero se mantiene por compatibilidad)
-        */
+         * ============================================================
+         * FUNCIÓN: agregarAlCarrito
+         * Agrega un producto al carrito vía AJAX (petición POST)
+         * 
+         * param {number} productoId - ID del producto a agregar
+         * param {string} nombre - Nombre del producto (no se usa pero se mantiene)
+         * param {number} precio - Precio del producto (no se usa pero se mantiene)
+         * ============================================================ */
         function agregarAlCarrito(productoId, nombre, precio) {
             // Mostrar mensaje de carga
             showToast('⏳ Agregando producto...');
-            
-            // ✅ Obtener el token antifalsificación correctamente
+
+            // Obtener el token antifalsificación del formulario
             const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
             const token = tokenInput ? tokenInput.value : '';
-            
-            // ✅ Construir los headers correctamente
+
+            // Configurar headers de la petición
             const headers = {
                 'Content-Type': 'application/json'
             };
-            
-            // Solo agregar el token si existe
             if (token) {
                 headers['RequestVerificationToken'] = token;
             }
-            
+
             // Realizar la petición POST al servidor
             fetch('/Web/Carrito?handler=Add', {
                 method: 'POST',
                 headers: headers,
-                body: JSON.stringify({ 
-                    productoId: productoId, 
-                    cantidad: 1 
+                body: JSON.stringify({
+                    productoId: productoId,
+                    cantidad: 1
                 })
             })
-            .then(response => {
-                // Verificar si la respuesta es exitosa
-                if (!response.ok) {
-                    // Si es 400, intentar leer el mensaje de error del servidor
-                    return response.json().then(data => {
-                        throw new Error(data.message || `Error HTTP: ${response.status}`);
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    // Actualizar el contador del carrito en la interfaz
-                    const counter = document.getElementById('carritoCount');
-                    if (counter) {
-                        counter.textContent = data.totalItems;
+                .then(response => {
+                    // Verificar si la respuesta es exitosa
+                    if (!response.ok) {
+                        return response.json().then(data => {
+                            throw new Error(data.message || `Error HTTP: ${response.status}`);
+                        });
                     }
-                    showToast('✅ Producto agregado al carrito');
-                } else {
-                    // Si el servidor devuelve un mensaje de error
-                    const errorMsg = data.message || 'Error al agregar el producto';
-                    showToast('❌ ' + errorMsg);
-                }
-            })
-            .catch(error => {
-                // Capturar errores de red o del servidor
-                console.error('Error al agregar al carrito:', error);
-                showToast('❌ ' + error.message);
-            });
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        // Actualizar el contador del carrito en la interfaz
+                        const counter = document.getElementById('carritoCount');
+                        if (counter) {
+                            counter.textContent = data.totalItems;
+                        }
+                        showToast('✅ Producto agregado al carrito');
+                    } else {
+                        // Mostrar mensaje de error del servidor
+                        const errorMsg = data.message || 'Error al agregar el producto';
+                        showToast('❌ ' + errorMsg);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al agregar al carrito:', error);
+                    showToast('❌ ' + error.message);
+                });
         }
 
+
         /**
-        * Muestra un mensaje tipo toast en la parte inferior de la pantalla
-        *  {string} message - Mensaje a mostrar
-        */
+         * ============================================================
+         * FUNCIÓN: showToast
+         * Muestra un mensaje tipo "toast" en la parte inferior de la pantalla
+         * 
+         * param {string} message - Mensaje a mostrar al usuario
+         * ============================================================ */
         function showToast(message) {
+            // Crear elemento div para el toast
             const toast = document.createElement('div');
             toast.style.cssText = `
-                position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-                background-color: #0B6299; color: #FAFAFA; padding: 12px 24px;
-                border-radius: 8px; z-index: 9999; font-weight: bold;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-                transition: opacity 0.3s ease;
-                max-width: 90%;
-                text-align: center;
-            `;
+                    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+                    background-color: #0B6299; color: #FAFAFA; padding: 12px 24px;
+                    border-radius: 8px; z-index: 9999; font-weight: bold;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                    transition: opacity 0.3s ease;
+                    max-width: 90%;
+                    text-align: center;
+                `;
             toast.textContent = message;
             document.body.appendChild(toast);
+
+            // Auto-eliminar después de 3 segundos
             setTimeout(() => {
                 toast.style.opacity = '0';
                 setTimeout(() => toast.remove(), 300);
             }, 3000);
         }
 
+
         /**
-        * Actualiza el contador del carrito consultando al servidor
-        */
+         * ============================================================
+         * FUNCIÓN: actualizarContadorCarrito
+         * Consulta al servidor el número de items en el carrito
+         * y actualiza el contador en la interfaz
+         * ============================================================ */
         function actualizarContadorCarrito() {
             fetch('/Web/Carrito?handler=Count')
                 .then(response => {
