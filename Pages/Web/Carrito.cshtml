@@ -1,0 +1,134 @@
+@page
+@model miTienda.Pages.Web.CarritoModel
+@{
+    ViewData["Title"] = "Mi Carrito";
+    Layout = "_Layout";
+}
+
+<!-- 
+    PÁGINA DE CARRITO DE COMPRAS
+    - Lista los items agregados con imagen, nombre, cantidad, precio unitario, subtotal
+    - Permite modificar cantidad, eliminar item o vaciar todo
+    - Muestra el total general
+    - Botón "Pagar" redirige a la selección de método de pago
+-->
+
+<div class="container py-5" style="background-color: #070B12; min-height: 100vh; color: #FAFAFA;">
+    <!-- Título y botón de regreso -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 style="color: #FAFAFA; font-weight: bold;">🛒 Mi Carrito</h2>
+        <!-- ✅ Botón para volver al catálogo -->
+        <a asp-page="/Web/Index" class="btn" style="background-color: #0B6299; color: #FAFAFA; border-radius:8px; padding:8px 20px; font-weight:bold; border: 1px solid #FFA600; transition: all 0.3s ease;"
+           onmouseover="this.style.backgroundColor='#FFA600'; this.style.color='#070B12';" 
+           onmouseout="this.style.backgroundColor='#0B6299'; this.style.color='#FAFAFA';">
+            ← Seguir comprando
+        </a>
+    </div>
+    <hr style="border-color: #0B6299;" />
+
+    @if (Model.Items != null && Model.Items.Any())
+    {
+        <div class="table-responsive mt-4">
+            <table class="table" style="color: #FAFAFA;">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Precio unitario</th>
+                        <th>Cantidad</th>
+                        <th>Subtotal</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    @if (!string.IsNullOrEmpty(item.Imagen))
+                                    {
+                                        <img src="~/images/productos/@item.Imagen" alt="@item.Nombre" 
+                                             style="width:60px; height:60px; object-fit:cover; border-radius:8px; margin-right:12px; background-color:#1A1F2E; padding:4px;" />
+                                    }
+                                    <span style="font-weight: 500;">@item.Nombre</span>
+                                </div>
+                            </td>
+                            <td style="color: #FFA600;">S/ @(item.PrecioVenta?.ToString("F2") ?? "0.00")</td>
+                            <td>
+                                <!-- Formulario para actualizar cantidad -->
+                                <form method="post" asp-page-handler="Update" class="d-inline">
+                                    <input type="hidden" name="productoId" value="@item.ProductoId" />
+                                    <input type="number" name="cantidad" value="@item.Cantidad" min="1" 
+                                           style="width:70px; background-color:#1A1F2E; color:#FAFAFA; border:1px solid #0B6299; border-radius:8px; padding:6px 8px; text-align:center;" />
+                                    <button type="submit" class="btn btn-sm" style="background-color:#0B6299; color:#FAFAFA; border-radius:8px; padding:6px 12px; margin-left:4px; transition: all 0.3s ease;"
+                                            onmouseover="this.style.backgroundColor='#FFA600'; this.style.color='#070B12';" 
+                                            onmouseout="this.style.backgroundColor='#0B6299'; this.style.color='#FAFAFA';">
+                                        Actualizar
+                                    </button>
+                                </form>
+                            </td>
+                            <td style="color: #FFA600; font-weight: bold;">S/ @(item.Subtotal?.ToString("F2") ?? "0.00")</td>
+                            <td>
+                                <!-- Formulario para eliminar un item -->
+                                <form method="post" asp-page-handler="Remove">
+                                    <input type="hidden" name="productoId" value="@item.ProductoId" />
+                                    <button type="submit" class="btn btn-sm btn-danger" style="border-radius:8px; padding:6px 12px; transition: all 0.3s ease;"
+                                            onmouseover="this.style.backgroundColor='#ff3333';" 
+                                            onmouseout="this.style.backgroundColor='#dc3545';">
+                                        ✕
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" class="text-end fw-bold" style="font-size: 18px;">Total:</td>
+                        <td class="fw-bold" style="color: #FFA600; font-size: 22px;">S/ @(Model.Total?.ToString("F2") ?? "0.00")</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="d-flex flex-wrap justify-content-between mt-4 gap-3">
+            <div class="d-flex flex-wrap gap-3">
+                <!-- ✅ Botón para volver al catálogo (versión móvil) -->
+                <a asp-page="/Web/Index" class="btn" style="background-color: #0B6299; color: #FAFAFA; border-radius:8px; padding:10px 20px; font-weight:bold; border: 1px solid #FFA600; transition: all 0.3s ease;"
+                   onmouseover="this.style.backgroundColor='#FFA600'; this.style.color='#070B12';" 
+                   onmouseout="this.style.backgroundColor='#0B6299'; this.style.color='#FAFAFA';">
+                    ← Seguir comprando
+                </a>
+                
+                <form method="post" asp-page-handler="Clear">
+                    <button type="submit" class="btn btn-danger" style="border-radius:8px; padding:10px 20px; font-weight:bold; transition: all 0.3s ease;"
+                            onmouseover="this.style.backgroundColor='#ff3333';" 
+                            onmouseout="this.style.backgroundColor='#dc3545';"
+                            onclick="return confirm('¿Estás seguro de vaciar el carrito?');">
+                        Vaciar Carrito
+                    </button>
+                </form>
+            </div>
+            <a asp-page="/Pagos/Index" class="btn" style="background-color: #FFA600; color: #070B12; font-weight: bold; border-radius:8px; padding:10px 30px; transition: all 0.3s ease;"
+               onmouseover="this.style.backgroundColor='#e69500';" 
+               onmouseout="this.style.backgroundColor='#FFA600';">
+                Proceder al Pago →
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <div style="font-size: 80px; margin-bottom: 20px;">🛒</div>
+            <p style="color: #a0a0a0; font-size: 18px;">Tu carrito está vacío.</p>
+            <p style="color: #6c6c6c; font-size: 14px;">¡Explora nuestro catálogo y encuentra lo que buscas!</p>
+            <a asp-page="/Web/Index" class="btn mt-3" style="background-color: #FFA600; color: #070B12; font-weight: bold; border-radius:8px; padding:10px 30px; transition: all 0.3s ease;"
+               onmouseover="this.style.backgroundColor='#e69500';" 
+               onmouseout="this.style.backgroundColor='#FFA600';">
+                Ver productos →
+            </a>
+        </div>
+    }
+</div>

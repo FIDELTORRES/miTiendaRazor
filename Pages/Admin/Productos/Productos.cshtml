@@ -1,0 +1,305 @@
+@page
+@model miTienda.Pages.Admin.Productos.ProductosModel
+@{
+    ViewData["Title"] = "📦 Lista de Productos";
+    Layout = "_LayoutAdmin";
+}
+
+<!-- Mensajes de éxito/error -->
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        ✅ @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        ❌ @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- ============================================================ -->
+<!-- 📌 SECCIÓN DE FILTROS                                        -->
+<!-- ============================================================ -->
+<div class="card mb-4">
+    <!--div class="card-header bg-primary text-white">
+        <strong>🔍 Buscar Productos</strong>
+    </div-->
+    <div class="d-flex justify-content-end mb-3">
+        <a asp-page="/Admin/Productos/Crear" class="btn btn-success">
+            <i class="fas fa-plus me-1"></i> Nuevo Producto
+        </a>
+    </div>
+    
+    <!-- Tarjeta de filtros ultra reducida -->
+    <div class="card card-busqueda mb-4">
+        <div class="card-body py-2 px-3">
+            <form method="get" asp-page="/Admin/Productos/Productos">
+                <div class="row g-2 align-items-end">
+                    <div class="col-lg-2 col-md-3">
+                        <label class="form-label mb-1">Tienda</label>
+                        <select name="tiendaFiltro" class="form-select form-select-sm">
+                            <option value="">Todas</option>
+                            <option value="2" selected="@(Model.TiendaFiltro == 2)">🏪 Tienda 2</option>
+                            <option value="3" selected="@(Model.TiendaFiltro == 3)">📦 Almacén 3</option>
+                        </select>
+                    </div>
+
+                    <div class="col-lg-3 col-md-3">
+                        <label class="form-label mb-1">Código de Barras</label>
+                        <input type="text" name="codbarraFiltro" class="form-control form-control-sm" 
+                            placeholder="Buscar por código..." 
+                            value="@Model.CodbarraFiltro" />
+                    </div>
+
+                    <div class="col-lg-4 col-md-3">
+                        <label class="form-label mb-1">Nombre del Producto</label>
+                        <input type="text" name="nombreFiltro" class="form-control form-control-sm" 
+                            placeholder="Buscar por nombre..." 
+                            value="@Model.NombreFiltro" />
+                    </div>
+
+                    <div class="col-lg-3 col-md-3 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary btn-sm flex-grow-1">
+                            🔍 Buscar
+                        </button>
+                        <a asp-page="/Admin/Productos/Productos" asp-route-tiendaFiltro="2" 
+                        asp-route-codbarraFiltro="" asp-route-nombreFiltro="" 
+                        class="btn btn-secondary btn-sm">
+                            🗑️ Limpiar
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+</div>
+
+<!-- ============================================================ -->
+<!-- 📌 TABLA DE PRODUCTOS                                        -->
+<!-- ============================================================ -->
+@if (Model.ProductosTienda.Any())
+{
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Imagen</th>
+                    <th>Producto</th>
+                    <th>Código de Barras</th>
+                    <th>Tienda</th>
+                    <th>Stock</th>
+                    <th>Precio Venta</th>
+                    <th>Estado</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.ProductosTienda)
+                {
+                    <tr>
+                        <td>@item.Id</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(item.Producto?.Imagen))
+                            {
+                                <div style="width:50px;height:50px;border-radius:4px;overflow:hidden;background:#f8f9fa;display:flex;align-items:center;justify-content:center;border:1px solid #dee2e6;">
+                                    <img src="~/images/productos/@item.Producto.Imagen" 
+                                        alt="@item.Producto.Nombre" 
+                                        style="width:100%;height:100%;object-fit:cover;"
+                                        onerror="this.style.display='none'; this.parentElement.textContent='📷';" />
+                                </div>
+                            }
+                            else
+                            {
+                                <div style="width:50px;height:50px;border-radius:4px;background:#f8f9fa;display:flex;align-items:center;justify-content:center;border:1px solid #dee2e6;">
+                                    <span style="font-size:24px;color:#6c757d;">📷</span>
+                                </div>
+                            }
+                        </td>
+                        <td>
+                            <strong>@(item.Producto?.Nombre ?? "N/A")</strong>
+                            @if (!string.IsNullOrEmpty(item.Producto?.Codigo))
+                            {
+                                <br /><small class="text-muted">Cód: @item.Producto.Codigo</small>
+                            }
+                        </td>
+                        <td>@(item.Codbarra ?? "-")</td>
+                        <td>
+                            @if (item.IdTienda == 2)
+                            {
+                                <span class="badge bg-info">🏪 Tienda 2</span>
+                            }
+                            else if (item.IdTienda == 3)
+                            {
+                                <span class="badge bg-warning">📦 Almacén 3</span>
+                            }
+                            else
+                            {
+                                <span>@item.IdTienda</span>
+                            }
+                        </td>
+                        <td class="text-end">@(item.Stock?.ToString("F2") ?? "0.00")</td>
+                        <td class="text-end">S/ @(item.PrecioVenta?.ToString("F2") ?? "0.00")</td>
+                        <td>
+                            @if (item.Estado == 1)
+                            {
+                                <span class="badge bg-success">Activo</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Inactivo</span>
+                            }
+                        </td>
+                        <td class="text-center" style="min-width: 200px;">
+                            <!-- Botón Editar -->
+                            <a asp-page="/Admin/Productos/Editar" asp-route-id="@item.IdProducto" class="btn btn-sm btn-primary mb-1">
+                                ✏️
+                            </a>
+                            
+                            <!-- Botón Ver Detalle -->
+                            <a asp-page="/Admin/Productos/Detalle" asp-route-id="@item.IdProducto" class="btn btn-sm btn-info mb-1">
+                                👁️
+                            </a>
+                            
+                            <!-- Botón Eliminar/Desactivar -->
+                            @if (item.Estado == 1)
+                            {
+                                <button type="button" class="btn btn-sm btn-danger mb-1" 
+                                        onclick="confirmarEliminacion(@item.IdProducto, '@item.Producto?.Nombre')">
+                                    🗑️
+                                </button>
+                            }
+                            else
+                            {
+                                <button type="button" class="btn btn-sm btn-success mb-1" 
+                                        onclick="confirmarActivacion(@item.IdProducto, '@item.Producto?.Nombre')">
+                                    ✅
+                                </button>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 📌 PAGINACIÓN                                                -->
+    <!-- ============================================================ -->
+    <nav aria-label="Navegación de páginas">
+        <ul class="pagination justify-content-center">
+            <!-- Botón Anterior -->
+            @if (Model.PaginaActual > 1)
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-page="/Admin/Productos/Productos" 
+                       asp-route-pagina="@(Model.PaginaActual - 1)"
+                       asp-route-tiendaFiltro="@Model.TiendaFiltro"
+                       asp-route-codbarraFiltro="@Model.CodbarraFiltro"
+                       asp-route-nombreFiltro="@Model.NombreFiltro">
+                        « Anterior
+                    </a>
+                </li>
+            }
+            else
+            {
+                <li class="page-item disabled">
+                    <span class="page-link">« Anterior</span>
+                </li>
+            }
+
+            <!-- Números de página -->
+            @{
+                int inicio = Math.Max(1, Model.PaginaActual - 2);
+                int fin = Math.Min(Model.TotalPaginas, Model.PaginaActual + 2);
+
+                if (fin - inicio < 4)
+                {
+                    if (inicio == 1)
+                        fin = Math.Min(5, Model.TotalPaginas);
+                    else if (fin == Model.TotalPaginas)
+                        inicio = Math.Max(1, Model.TotalPaginas - 4);
+                }
+            }
+
+            @for (int i = inicio; i <= fin; i++)
+            {
+                if (i == Model.PaginaActual)
+                {
+                    <li class="page-item active">
+                        <span class="page-link">@i</span>
+                    </li>
+                }
+                else
+                {
+                    <li class="page-item">
+                        <a class="page-link" asp-page="/Admin/Productos/Productos" 
+                           asp-route-pagina="@i"
+                           asp-route-tiendaFiltro="@Model.TiendaFiltro"
+                           asp-route-codbarraFiltro="@Model.CodbarraFiltro"
+                           asp-route-nombreFiltro="@Model.NombreFiltro">
+                            @i
+                        </a>
+                    </li>
+                }
+            }
+
+            <!-- Botón Siguiente -->
+            @if (Model.PaginaActual < Model.TotalPaginas)
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-page="/Admin/Productos/Productos" 
+                       asp-route-pagina="@(Model.PaginaActual + 1)"
+                       asp-route-tiendaFiltro="@Model.TiendaFiltro"
+                       asp-route-codbarraFiltro="@Model.CodbarraFiltro"
+                       asp-route-nombreFiltro="@Model.NombreFiltro">
+                        Siguiente »
+                    </a>
+                </li>
+            }
+            else
+            {
+                <li class="page-item disabled">
+                    <span class="page-link">Siguiente »</span>
+                </li>
+            }
+        </ul>
+    </nav>
+
+    <!-- Resumen de resultados -->
+    <div class="text-center text-muted">
+        <small>
+            Mostrando <strong>@Model.ProductosTienda.Count</strong> de <strong>@Model.TotalRegistros</strong> registros 
+            (Página @Model.PaginaActual de @Model.TotalPaginas)
+        </small>
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">
+        ⚠️ No se encontraron productos con los filtros seleccionados.
+    </div>
+}
+
+@section Scripts {
+    <link rel="stylesheet" href="~/css/categoriapagina.css" />
+    <script>
+        function confirmarEliminacion(id, nombre) {
+            if (confirm(`¿Estás seguro de DESACTIVAR el producto "${nombre}"?\n\nEl producto quedará inactivo pero se mantendrá en el historial.`)) {
+                window.location.href = `/Admin/Productos/Productos?handler=ToggleEstado&id=${id}&estado=0`;
+            }
+        }
+
+        function confirmarActivacion(id, nombre) {
+            if (confirm(`¿Estás seguro de ACTIVAR el producto "${nombre}"?`)) {
+                window.location.href = `/Admin/Productos/Productos?handler=ToggleEstado&id=${id}&estado=1`;
+            }
+        }
+    </script>
+}

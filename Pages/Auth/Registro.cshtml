@@ -1,0 +1,125 @@
+@page
+@model miTienda.Pages.Auth.RegistroModel
+@{
+    ViewData["Title"] = "Crear Cuenta";
+    Layout = "_Layout";
+}
+
+<div class="container py-5" style="background-color: #070B12; min-height: 100vh; color: #FAFAFA;">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card" style="background-color: #1A1F2E; border: none; border-radius: 12px; padding: 32px;">
+                <h3 style="color: #FFA600; font-weight: bold; text-align: center;">📝 Crear Cuenta</h3>
+                <p style="color: #a0a0a0; text-align: center; font-size: 14px;">
+                    Regístrate para comenzar a comprar
+                </p>
+                <hr style="border-color: #0B6299;" />
+
+                @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                {
+                    <div class="alert alert-danger" style="background-color: #3d1a1a; border-color: #ff4444; color: #ff8888;">
+                        ❌ @Model.ErrorMessage
+                    </div>
+                }
+
+                @if (Model.EmailExists)
+                {
+                    <div class="alert alert-info" style="background-color: #1a2a3d; border-color: #0B6299; color: #88bbff;">
+                        <p style="margin-bottom: 5px;">
+                            <strong>⚠️ Ya tienes una cuenta registrada con este correo.</strong>
+                        </p>
+                        <div class="d-flex gap-3 mt-2">
+                            <a asp-page="/Auth/Login" asp-route-returnUrl="@Model.ReturnUrl" 
+                               class="btn btn-sm" style="background-color: #FFA600; color: #070B12; font-weight: bold; border-radius: 6px; padding: 6px 16px;">
+                                🔐 Iniciar Sesión
+                            </a>
+                            <a asp-page="/Auth/ForgotPassword" 
+                               class="btn btn-sm" style="background-color: #0B6299; color: #FAFAFA; border-radius: 6px; padding: 6px 16px;">
+                                🔑 ¿Olvidaste tu contraseña?
+                            </a>
+                        </div>
+                    </div>
+                }
+
+                @if (!Model.EmailExists)
+                {
+                    <form method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="ReturnUrl" />
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="Registro.Nombres" class="form-label" style="color: #FAFAFA; font-weight: bold;">Nombres</label>
+                                <input asp-for="Registro.Nombres" class="form-control" 
+                                       style="background-color: #070B12; color: #FAFAFA; border-color: #0B6299; border-radius: 8px; padding: 12px;"
+                                       placeholder="Tus nombres" required />
+                                <span asp-validation-for="Registro.Nombres" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Registro.Apellidos" class="form-label" style="color: #FAFAFA; font-weight: bold;">Apellidos</label>
+                                <input asp-for="Registro.Apellidos" class="form-control" 
+                                       style="background-color: #070B12; color: #FAFAFA; border-color: #0B6299; border-radius: 8px; padding: 12px;"
+                                       placeholder="Tus apellidos" required />
+                                <span asp-validation-for="Registro.Apellidos" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 mt-3">
+                            <label asp-for="Registro.Email" class="form-label" style="color: #FAFAFA; font-weight: bold;">Correo Electrónico</label>
+                            <input asp-for="Registro.Email" type="email" class="form-control" 
+                                   style="background-color: #070B12; color: #FAFAFA; border-color: #0B6299; border-radius: 8px; padding: 12px;"
+                                   placeholder="ejemplo@correo.com" required />
+                            <span asp-validation-for="Registro.Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Registro.Telefono" class="form-label" style="color: #FAFAFA; font-weight: bold;">Teléfono</label>
+                            <input asp-for="Registro.Telefono" class="form-control" 
+                                   style="background-color: #070B12; color: #FAFAFA; border-color: #0B6299; border-radius: 8px; padding: 12px;"
+                                   placeholder="987654321" />
+                            <span asp-validation-for="Registro.Telefono" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Registro.Password" class="form-label" style="color: #FAFAFA; font-weight: bold;">Contraseña</label>
+                            <input asp-for="Registro.Password" type="password" class="form-control" 
+                                   style="background-color: #070B12; color: #FAFAFA; border-color: #0B6299; border-radius: 8px; padding: 12px;"
+                                   placeholder="Mínimo 6 caracteres" required />
+                            <span asp-validation-for="Registro.Password" class="text-danger"></span>
+                            <small class="text-muted" style="color: #8c8c8c; font-size: 12px;">
+                                Mínimo 6 caracteres, incluyendo mayúsculas, minúsculas y números
+                            </small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Registro.ConfirmPassword" class="form-label" style="color: #FAFAFA; font-weight: bold;">Confirmar Contraseña</label>
+                            <input asp-for="Registro.ConfirmPassword" type="password" class="form-control" 
+                                   style="background-color: #070B12; color: #FAFAFA; border-color: #0B6299; border-radius: 8px; padding: 12px;"
+                                   placeholder="Repite tu contraseña" required />
+                            <span asp-validation-for="Registro.ConfirmPassword" class="text-danger"></span>
+                        </div>
+
+                        <button type="submit" class="btn w-100" style="background-color: #FFA600; color: #070B12; font-weight: bold; border-radius: 8px; padding: 12px; font-size: 16px; transition: all 0.3s ease;"
+                                onmouseover="this.style.backgroundColor='#e69500';" 
+                                onmouseout="this.style.backgroundColor='#FFA600';">
+                            Crear Cuenta
+                        </button>
+                    </form>
+                }
+
+                <div class="text-center mt-3">
+                    <p style="color: #8c8c8c; font-size: 14px;">
+                        ¿Ya tienes cuenta? 
+                        <a asp-page="/Auth/Login" asp-route-returnUrl="@Model.ReturnUrl" style="color: #FFA600; text-decoration: none; font-weight: bold;">
+                            Inicia Sesión
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

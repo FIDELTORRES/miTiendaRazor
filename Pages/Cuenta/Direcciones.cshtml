@@ -1,0 +1,41 @@
+@page
+@model miTienda.Pages.Cuenta.DireccionesModel
+@{
+    ViewData["Title"] = "Mis Direcciones";
+    Layout = "_Layout";
+}
+
+<div class="container py-5" style="background-color: #070B12; min-height: 100vh; color: #FAFAFA;">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <h2 style="color: #FAFAFA; font-weight: bold;">📍 Mis Direcciones</h2>
+            <p style="color: #a0a0a0;">Administra tu dirección de envío.</p>
+            <hr style="border-color: #0B6299;" />
+
+            @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+            {
+                <div class="alert" style="background-color: #1a3d1a; border-color: #44ff44; color: #88ff88;">
+                    ✅ @Model.SuccessMessage
+                </div>
+            }
+
+            <div class="card" style="background-color: #1A1F2E; border: none; border-radius: 12px; padding: 32px;">
+                <form method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div class="mb-3">
+                        <label class="form-label" style="color: #FAFAFA; font-weight: bold;">Dirección Principal</label>
+                        <textarea asp-for="Direccion" class="form-control" rows="3"
+                                  style="background-color: #070B12; color: #FAFAFA; border-color: #0B6299; border-radius: 8px; padding: 12px;"
+                                  placeholder="Av. Principal 123, Urbanización, Referencia..." required></textarea>
+                        <small style="color: #8c8c8c;">Esta será tu dirección por defecto para futuros pedidos.</small>
+                    </div>
+
+                    <button type="submit" class="btn w-100 mt-3" style="background-color: #FFA600; color: #070B12; font-weight: bold; border-radius: 8px; padding: 12px; font-size: 16px;">
+                        💾 Guardar Dirección
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

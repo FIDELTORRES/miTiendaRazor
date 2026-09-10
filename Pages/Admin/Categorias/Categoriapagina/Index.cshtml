@@ -1,0 +1,214 @@
+@page
+@model miTienda.Pages.Admin.Categorias.Categoriapagina.IndexModel
+@{
+    ViewData["Title"] = "Categorías de página";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="container py-4">
+    <h4 class="mb-3">📚 Categorías Página (Nivel 2)</h4>
+    <hr />
+
+    <!-- ============================================================ -->
+    <!-- 🔍 BUSCADOR Y FILTROS                                         -->
+    <!-- ============================================================ -->
+    <div class="card mb-2">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-5">
+                    <label class="form-label fw-bold">Buscar</label>
+                    <input type="text" asp-for="DescripcionFiltro" class="form-control" 
+                           placeholder="Buscar por ID, descripción, categoría propia o subcategoría..." />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Estado</label>
+                    <select asp-for="EstadoFiltro" class="form-select">
+                        <option value="">-- Todos --</option>
+                        <option value="1">Activo</option>
+                        <option value="0">Inactivo</option>
+                    </select>
+                </div>
+                <div class="col-md-4 d-flex align-items-end gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        🔍 Buscar
+                    </button>
+                    <a asp-page="./Index" asp-route-pagina="1" 
+                       asp-route-descripcionFiltro="" 
+                       asp-route-estadoFiltro="" 
+                       class="btn btn-secondary">
+                        Limpiar
+                    </a>
+                    <a asp-page="./Crear" class="btn btn-success ms-auto">
+                        ➕ Nuevo
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 📋 TABLA DE RESULTADOS                                        -->
+    <!-- ============================================================ -->
+    @if (Model.CategoriasPagina != null && Model.CategoriasPagina.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Idcategoria</th>
+                        <th>Descripción</th>
+                        <th>Idcategoriapropia</th>
+                        <th>Idsubcategoria</th>
+                        <th>Imagen</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.CategoriasPagina)
+                    {
+                        // Buscar la subcategoría para mostrar su descripción
+                        var subcategoria = Model.Subcategorias?.FirstOrDefault(s => s.IdSubcategoria.ToString() == item.IdSubcategoria);
+                        var subcategoriaDisplay = subcategoria != null ? $"{subcategoria.IdSubcategoria} - {subcategoria.Descripcion}" : item.IdSubcategoria ?? "-";
+
+                        <tr>
+                            <td>@item.IdCategoriapagina</td>
+                            <td>@item.Descripcion</td>
+                            <td>@(item.Categoriapropia?.Descripcion ?? "-")</td>
+                            <td>@subcategoriaDisplay</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(item.Imagen))
+                                {
+                                    <span class="badge bg-info">Con imagen</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Sin imagen</span>
+                                }
+                            </td>
+                            <td>
+                                @if (item.Estado == 1)
+                                {
+                                    <span class="badge bg-success">Activo</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Inactivo</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a asp-page="./Editar" asp-route-id="@item.IdCategoriapagina" 
+                                       class="btn btn-warning" title="Editar">
+                                        ✏️
+                                    </a>
+                                    <button type="button" class="btn btn-danger" title="Eliminar"
+                                            onclick="eliminar(@item.IdCategoriapagina)">
+                                        🗑️
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- 📄 PAGINACIÓN                                                 -->
+        <!-- ============================================================ -->
+        <nav aria-label="Paginación">
+            <ul class="pagination justify-content-center">
+                <!-- Anterior -->
+                <li class="page-item @(Model.PaginaActual <= 1 ? "disabled" : "")">
+                    <a class="page-link" 
+                       asp-page="./Index" 
+                       asp-route-pagina="@(Model.PaginaActual - 1)"
+                       asp-route-descripcionFiltro="@Model.DescripcionFiltro"
+                       asp-route-estadoFiltro="@Model.EstadoFiltro">
+                        &laquo; Anterior
+                    </a>
+                </li>
+
+                <!-- Números -->
+                @{
+                    int startPage = Math.Max(1, Model.PaginaActual - 2);
+                    int endPage = Math.Min(Model.TotalPaginas, Model.PaginaActual + 2);
+                }
+
+                @if (startPage > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link" 
+                           asp-page="./Index" 
+                           asp-route-pagina="1"
+                           asp-route-descripcionFiltro="@Model.DescripcionFiltro"
+                           asp-route-estadoFiltro="@Model.EstadoFiltro">1</a>
+                    </li>
+                    @if (startPage > 2)
+                    {
+                        <li class="page-item disabled"><span class="page-link">…</span></li>
+                    }
+                }
+
+                @for (int i = startPage; i <= endPage; i++)
+                {
+                    <li class="page-item @(i == Model.PaginaActual ? "active" : "")">
+                        <a class="page-link" 
+                           asp-page="./Index" 
+                           asp-route-pagina="@i"
+                           asp-route-descripcionFiltro="@Model.DescripcionFiltro"
+                           asp-route-estadoFiltro="@Model.EstadoFiltro">@i</a>
+                    </li>
+                }
+
+                @if (endPage < Model.TotalPaginas)
+                {
+                    @if (endPage < Model.TotalPaginas - 1)
+                    {
+                        <li class="page-item disabled"><span class="page-link">…</span></li>
+                    }
+                    <li class="page-item">
+                        <a class="page-link" 
+                           asp-page="./Index" 
+                           asp-route-pagina="@Model.TotalPaginas"
+                           asp-route-descripcionFiltro="@Model.DescripcionFiltro"
+                           asp-route-estadoFiltro="@Model.EstadoFiltro">@Model.TotalPaginas</a>
+                    </li>
+                }
+
+                <!-- Siguiente -->
+                <li class="page-item @(Model.PaginaActual >= Model.TotalPaginas ? "disabled" : "")">
+                    <a class="page-link" 
+                       asp-page="./Index" 
+                       asp-route-pagina="@(Model.PaginaActual + 1)"
+                       asp-route-descripcionFiltro="@Model.DescripcionFiltro"
+                       asp-route-estadoFiltro="@Model.EstadoFiltro">
+                        Siguiente &raquo;
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Información de registros -->
+        <div class="text-center text-muted">
+            Mostrando @Model.CategoriasPagina.Count de @Model.TotalRegistros registros
+            (Página @Model.PaginaActual de @Model.TotalPaginas)
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning">No hay categorías registradas.</div>
+    }
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="~/css/categoriapagina.css" />
+    <script>
+        function eliminar(id) {
+            if (confirm('¿Estás seguro de eliminar esta categoría?')) {
+                window.location.href = '/Admin/Categorias/Categoriapagina/Eliminar/' + id;
+            }
+        }
+    </script>
+}

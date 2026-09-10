@@ -1,0 +1,89 @@
+@page
+@model miTienda.Pages.Pagos.PlinModel
+@{
+    ViewData["Title"] = "Pago con Plin";
+    Layout = "_Layout";
+}
+
+<div class="container py-5" style="background-color: #070B12; min-height: 100vh; color: #FAFAFA;">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card" style="background-color: #1A1F2E; border: none; border-radius: 12px; padding: 32px;">
+                <div class="text-center">
+                    <div style="font-size: 60px; margin-bottom: 10px;">🏦</div>
+                    <h4 style="color: #FFA600; font-weight: bold;">Pago con Plin</h4>
+                    <p style="color: #a0a0a0;">Escanea el código QR con la app de tu banco y realiza el pago.</p>
+                </div>
+                <hr style="border-color: #0B6299;" />
+
+                <!-- Resumen del pedido -->
+                <div style="background-color: #070B12; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <div class="d-flex justify-content-between">
+                        <span style="color: #a0a0a0;">Total a pagar:</span>
+                        <span style="color: #FFA600; font-weight: bold; font-size: 24px;">S/ @(Model.Total?.ToString("F2") ?? "0.00")</span>
+                    </div>
+                </div>
+
+                <!-- QR Code -->
+                <div class="text-center">
+                    <div style="background-color: white; padding: 20px; border-radius: 12px; display: inline-block; margin-bottom: 16px;">
+                        <img src="~/images/pagos/plin-qr.png" alt="Código QR Plin" 
+                             style="width: 250px; height: 250px; object-fit: contain;"
+                             onerror='this.style.display="none"; this.parentElement.innerHTML="<div style=\"font-size:100px;color:#6c757d;\">💳</div>";' />
+                    </div>
+                    
+                    <!-- Código de transacción -->
+                    <div style="background-color: #070B12; padding: 16px; border-radius: 8px; border: 1px solid #0B6299; margin-bottom: 20px;">
+                        <p style="color: #a0a0a0; font-size: 14px; margin: 0;">
+                            Código de transacción:
+                            <span style="color: #FFA600; font-weight: bold; font-size: 18px; display: block; margin-top: 4px;">
+                                @Model.CodigoTransaccion
+                            </span>
+                        </p>
+                    </div>
+
+                    <!-- Instrucciones -->
+                    <div style="background-color: #070B12; padding: 16px; border-radius: 8px; border-left: 4px solid #FFA600; text-align: left; margin-bottom: 20px;">
+                        <p style="color: #a0a0a0; font-size: 14px; margin: 0;">
+                            <strong style="color: #FAFAFA;">Instrucciones:</strong><br />
+                            1. Abre la app de tu banco (Interbank, BCP, etc.)<br />
+                            2. Selecciona la opción Plin<br />
+                            3. Escanea el código QR<br />
+                            4. Ingresa el monto a pagar: <strong style="color: #FFA600;">S/ @(Model.Total?.ToString("F2") ?? "0.00")</strong><br />
+                            5. Confirma el pago<br />
+                            6. Ingresa el código de transacción en el formulario
+                        </p>
+                    </div>
+
+                    <!-- Formulario de confirmación -->
+                    <form method="post">
+                        @Html.AntiForgeryToken()
+                        
+                        <div class="mb-3">
+                            <label class="form-label" style="color: #FAFAFA; font-weight: bold;">
+                                Código de transacción (confirma tu pago)
+                            </label>
+                            <input type="text" asp-for="CodigoConfirmacion" class="form-control" 
+                                   style="background-color: #070B12; color: #FAFAFA; border-color: #0B6299; border-radius: 8px; padding: 12px;"
+                                   placeholder="Ingresa el código de tu transacción" required />
+                        </div>
+
+                        <button type="submit" class="btn w-100" style="background-color: #FFA600; color: #070B12; font-weight: bold; border-radius: 8px; padding: 14px; font-size: 18px; transition: all 0.3s ease;"
+                                onmouseover="this.style.backgroundColor='#e69500';" 
+                                onmouseout="this.style.backgroundColor='#FFA600';">
+                            ✅ Confirmar Pago
+                        </button>
+                    </form>
+                </div>
+
+                <div class="text-center mt-3">
+                    <a asp-page="/Pagos/Index" class="btn" style="background-color: #0B6299; color: #FAFAFA; border-radius: 8px; padding: 10px 24px; font-weight: bold; transition: all 0.3s ease;"
+                       onmouseover="this.style.backgroundColor='#FFA600'; this.style.color='#070B12';" 
+                       onmouseout="this.style.backgroundColor='#0B6299'; this.style.color='#FAFAFA';">
+                        ← Volver a métodos de pago
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,100 @@
+@page
+@model miTienda.Pages.Auth.LoginModel
+@{
+    ViewData["Title"] = "Iniciar Sesión";
+    Layout = "_Layout";
+}
+
+<div class="container py-5" style="background-color: #070B12; min-height: 100vh; color: #FAFAFA;">
+    <div class="row justify-content-center">
+        <div class="col-lg-5">
+            <div class="card" style="background-color: #1A1F2E; border: none; border-radius: 12px; padding: 32px;">
+                <!-- Título -->
+                <h3 style="color: #FFA600; font-weight: bold; text-align: center;">🔐 Iniciar Sesión</h3>
+                <p style="color: #a0a0a0; text-align: center; font-size: 14px;">
+                    Ingresa tu correo y contraseña para continuar
+                </p>
+                <hr style="border-color: #0B6299;" />
+
+                <!-- Mensaje de error -->
+                @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                {
+                    <div class="alert alert-danger" style="background-color: #3d1a1a; border-color: #ff4444; color: #ff8888;">
+                        ❌ @Model.ErrorMessage
+                    </div>
+                }
+
+                <!-- Mensaje de éxito (ej: después de restablecer contraseña) -->
+                @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+                {
+                    <div class="alert alert-success" style="background-color: #1a3d1a; border-color: #44ff44; color: #88ff88;">
+                        ✅ @Model.SuccessMessage
+                    </div>
+                }
+
+                <!-- Formulario -->
+                <form method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="ReturnUrl" />
+
+                    <!-- Correo Electrónico -->
+                    <div class="mb-3">
+                        <label asp-for="Login.Email" class="form-label" style="color: #FAFAFA; font-weight: bold;">
+                            Correo Electrónico
+                        </label>
+                        <input asp-for="Login.Email" type="email" class="form-control" 
+                               style="background-color: #070B12; color: #FAFAFA; border-color: #0B6299; border-radius: 8px; padding: 12px;"
+                               placeholder="ejemplo@correo.com" required />
+                        <span asp-validation-for="Login.Email" class="text-danger"></span>
+                    </div>
+
+                    <!-- Contraseña -->
+                    <div class="mb-3">
+                        <label asp-for="Login.Password" class="form-label" style="color: #FAFAFA; font-weight: bold;">
+                            Contraseña
+                        </label>
+                        <input asp-for="Login.Password" type="password" class="form-control" 
+                               style="background-color: #070B12; color: #FAFAFA; border-color: #0B6299; border-radius: 8px; padding: 12px;"
+                               placeholder="********" required />
+                        <span asp-validation-for="Login.Password" class="text-danger"></span>
+                    </div>
+
+                    <!-- Recordarme -->
+                    <div class="mb-3 form-check">
+                        <input asp-for="Login.RememberMe" class="form-check-input" 
+                               style="background-color: #070B12; border-color: #0B6299;" />
+                        <label asp-for="Login.RememberMe" class="form-check-label" style="color: #a0a0a0;">
+                            Recordarme
+                        </label>
+                    </div>
+
+                    <!-- Botón Iniciar Sesión -->
+                    <button type="submit" class="btn w-100" style="background-color: #FFA600; color: #070B12; font-weight: bold; border-radius: 8px; padding: 12px; font-size: 16px; transition: all 0.3s ease;"
+                            onmouseover="this.style.backgroundColor='#e69500';" 
+                            onmouseout="this.style.backgroundColor='#FFA600';">
+                        Iniciar Sesión
+                    </button>
+                </form>
+
+                <!-- Enlaces adicionales -->
+                <div class="text-center mt-3">
+                    <p style="color: #8c8c8c; font-size: 14px;">
+                        <a asp-page="/Auth/ForgotPassword" style="color: #0B6299; text-decoration: none;">
+                            ¿Olvidaste tu contraseña?
+                        </a>
+                    </p>
+                    <p style="color: #8c8c8c; font-size: 14px;">
+                        ¿No tienes cuenta? 
+                        <a asp-page="/Auth/Registro" asp-route-returnUrl="@Model.ReturnUrl" style="color: #FFA600; text-decoration: none; font-weight: bold;">
+                            Regístrate aquí
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

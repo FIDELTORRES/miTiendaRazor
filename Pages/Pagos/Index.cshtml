@@ -1,0 +1,190 @@
+@page
+@model miTienda.Pages.Pagos.IndexModel
+@{
+    ViewData["Title"] = "Selecciona tu método de pago";
+    Layout = "_Layout";
+}
+
+<div class="container py-4" style="background-color: #070B12; min-height: 100vh; color: #FAFAFA;">
+    <div class="row">
+        <!-- Columna izquierda: Resumen del pedido -->
+        <div class="col-lg-5">
+            <div class="card" style="background-color: #1A1F2E; border: none; border-radius: 12px; padding: 24px;">
+                <h4 style="color: #FFA600; font-weight: bold;">📋 Resumen del pedido</h4>
+                <hr style="border-color: #0B6299;" />
+
+                @if (Model.Items != null && Model.Items.Any())
+                {
+                    @foreach (var item in Model.Items)
+                    {
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span style="color: #FFFF;">@item.Nombre x @item.Cantidad</span>
+                            <span style="color: #FFA600;">S/ @(item.Subtotal?.ToString("F2") ?? "0.00")</span>
+                        </div>
+                    }
+                }
+
+                <hr style="border-color: #0B6299;" />
+
+                <div class="d-flex justify-content-between">
+                    <span style="color: #FFA600;">Subtotal:</span>
+                    <span style="color: #FFA600;">S/ @(Model.Subtotal?.ToString("F2") ?? "0.00")</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span style="color: #FFA600;">IGV (18%):</span>
+                    <span style="color: #FFA600;">S/ @(Model.Igv?.ToString("F2") ?? "0.00")</span>
+                </div>
+                <div class="d-flex justify-content-between" 
+                    style="font-size: 20px; font-weight: bold; margin-top: 10px; border-top: 2px solid #FFA600; padding-top: 10px;">
+                    <span style="color: #FFA600;">Total:</span>
+                    <span style="color: #FFA600;">S/ @(Model.Total?.ToString("F2") ?? "0.00")</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Columna derecha: Métodos de pago -->
+        <div class="col-lg-7">
+            <h4 style="color: #FAFAFA; font-weight: bold;">💰 Selecciona tu método de pago</h4>
+            <p style="color: #a0a0a0;">Elige cómo deseas realizar el pago de tu pedido.</p>
+
+            <!-- ============================================================ -->
+            <!-- 🔒 VALIDACIÓN DE LOGIN                                        -->
+            <!-- ============================================================ -->
+            @if (User.Identity?.IsAuthenticated != true)
+            {
+                <div class="alert alert-warning" style="background-color: #1A1F2E; border: 2px solid #FFA600; border-radius: 12px; padding: 20px; color: #FAFAFA;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 40px;">🔐</span>
+                        <div>
+                            <h5 style="color: #FFA600; margin: 0;">Para continuar, necesitas iniciar sesión</h5>
+                            <p style="color: #a0a0a0; margin: 4px 0 0 0; font-size: 14px;">
+                                Inicia sesión o crea una cuenta para completar tu pedido.
+                                <br />
+                                <span style="color: #FFA600;">¡Tu carrito se mantendrá!</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="mt-3 d-flex gap-3">
+                        <a asp-page="/Auth/Login" asp-route-returnUrl="/Pagos/Index" 
+                           class="btn" style="background-color: #0B6299; color: #FAFAFA; border-radius: 8px; padding: 10px 24px; font-weight: bold; border: 1px solid #FFA600;">
+                            Iniciar Sesión
+                        </a>
+                        <a asp-page="/Auth/Registro" asp-route-returnUrl="/Pagos/Index"
+                           class="btn" style="background-color: #FFA600; color: #070B12; border-radius: 8px; padding: 10px 24px; font-weight: bold;">
+                            Crear Cuenta
+                        </a>
+                    </div>
+                </div>
+            }
+
+            <div class="row g-3 mt-2">
+                <!-- Yape -->
+                <div class="col-12 col-md-6">
+                    <div class="card method-card" style="background-color: #1A1F2E; border: 1px solid #0B6299; border-radius: 12px; padding: 16px; cursor: pointer; transition: all 0.3s ease;"
+                         onmouseover="this.style.borderColor='#FFA600'; this.style.transform='translateY(-4px)';"
+                         onmouseout="this.style.borderColor='#0B6299'; this.style.transform='none';"
+                         onclick="seleccionarMetodo('yape')">
+                        <div class="d-flex align-items-center mb-2">
+                            <span style="font-size: 32px; margin-right: 12px;">📱</span>
+                            <h5 style="color: #FAFAFA; margin: 0;">Yape</h5>
+                        </div>
+                        <p style="color: #a0a0a0; font-size: 14px;">Paga al instante con la app Yape</p>
+                        <ul style="color: #8c8c8c; font-size: 13px; padding-left: 20px;">
+                            <li>Rápido y seguro</li>
+                        </ul>
+                        <button class="btn w-100 mt-2" style="background-color: #FFA600; color: #070B12; font-weight: bold; border-radius: 8px; padding: 10px;">
+                            Pagar con Yape
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Plin -->
+                <div class="col-12 col-md-6">
+                    <div class="card method-card" style="background-color: #1A1F2E; border: 1px solid #0B6299; border-radius: 12px; padding: 16px; cursor: pointer; transition: all 0.3s ease;"
+                         onmouseover="this.style.borderColor='#FFA600'; this.style.transform='translateY(-4px)';"
+                         onmouseout="this.style.borderColor='#0B6299'; this.style.transform='none';"
+                         onclick="seleccionarMetodo('plin')">
+                        <div class="d-flex align-items-center mb-2">
+                            <span style="font-size: 32px; margin-right: 12px;">🏦</span>
+                            <h5 style="color: #FAFAFA; margin: 0;">Plin</h5>
+                        </div>
+                        <p style="color: #a0a0a0; font-size: 14px;">Paga con Plin desde tu banco</p>
+                        <ul style="color: #8c8c8c; font-size: 13px; padding-left: 20px;">
+                            <li>Interbank</li>
+                        </ul>
+                        <button class="btn w-100 mt-2" style="background-color: #FFA600; color: #070B12; font-weight: bold; border-radius: 8px; padding: 10px;">
+                            Pagar con Plin
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Transferencia Bancaria -->
+                <div class="col-12 col-md-6">
+                    <div class="card method-card" style="background-color: #1A1F2E; border: 1px solid #0B6299; border-radius: 12px; padding: 16px; cursor: pointer; transition: all 0.3s ease;"
+                         onmouseover="this.style.borderColor='#FFA600'; this.style.transform='translateY(-4px)';"
+                         onmouseout="this.style.borderColor='#0B6299'; this.style.transform='none';"
+                         onclick="seleccionarMetodo('transferencia')">
+                        <div class="d-flex align-items-center mb-2">
+                            <span style="font-size: 32px; margin-right: 12px;">💳</span>
+                            <h5 style="color: #FAFAFA; margin: 0;">Transferencia Bancaria</h5>
+                        </div>
+                        <p style="color: #a0a0a0; font-size: 14px;">Depósito o transferencia a nuestra cuenta</p>
+                        <ul style="color: #8c8c8c; font-size: 13px; padding-left: 20px;">
+                            <li>BCP / Interbank</li>
+                        </ul>
+                        <button class="btn w-100 mt-2" style="background-color: #FFA600; color: #070B12; font-weight: bold; border-radius: 8px; padding: 10px;">
+                            Pagar con Transferencia
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Efectivo -->
+                <div class="col-12 col-md-6">
+                    <div class="card method-card" style="background-color: #1A1F2E; border: 1px solid #0B6299; border-radius: 12px; padding: 16px; cursor: pointer; transition: all 0.3s ease;"
+                         onmouseover="this.style.borderColor='#FFA600'; this.style.transform='translateY(-4px)';"
+                         onmouseout="this.style.borderColor='#0B6299'; this.style.transform='none';"
+                         onclick="seleccionarMetodo('efectivo')">
+                        <div class="d-flex align-items-center mb-2">
+                            <span style="font-size: 32px; margin-right: 12px;">💵</span>
+                            <h5 style="color: #FAFAFA; margin: 0;">Efectivo</h5>
+                        </div>
+                        <p style="color: #a0a0a0; font-size: 14px;">Paga al recibir tu pedido</p>
+                        <ul style="color: #8c8c8c; font-size: 13px; padding-left: 20px;">
+                            <li>Solo Lima</li>
+                        </ul>
+                        <button class="btn w-100 mt-2" style="background-color: #FFA600; color: #070B12; font-weight: bold; border-radius: 8px; padding: 10px;">
+                            Pagar en Efectivo
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botón volver al carrito -->
+            <div class="mt-4">
+                <a asp-page="/Web/Carrito" class="btn" style="background-color: #0B6299; color: #FAFAFA; border-radius: 8px; padding: 10px 24px; font-weight: bold; border: 1px solid #FFA600; transition: all 0.3s ease;"
+                   onmouseover="this.style.backgroundColor='#FFA600'; this.style.color='#070B12';"
+                   onmouseout="this.style.backgroundColor='#0B6299'; this.style.color='#FAFAFA';">
+                    ← Volver al Carrito
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function seleccionarMetodo(metodo) {
+            // ✅ Verificar si el usuario está logueado
+            var isAuthenticated = @(User.Identity?.IsAuthenticated == true ? "true" : "false");
+            
+            if (!isAuthenticated) {
+                // Si NO está logueado, redirigir al login
+                window.location.href = '/Auth/Login?returnUrl=/Pagos/Index';
+                return;
+            }
+            
+            // Si está logueado, redirigir a confirmación
+            window.location.href = '/Pagos/Confirmar?metodo=' + metodo;
+        }
+    </script>
+}

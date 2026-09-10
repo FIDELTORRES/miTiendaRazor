@@ -1,0 +1,210 @@
+@page
+@model miTienda.Pages.Admin.Categorias.Categoriapagina.CrearModel
+@{
+    ViewData["Title"] = "Nuevo Registro de Categoriapagina";
+    Layout = "_LayoutAdmin";
+}
+
+<h2>📂 Nueva Categoría Página (Nivel 2)</h2>
+<hr />
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        ❌ @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            @Html.AntiForgeryToken()
+
+            <!-- ============================================================ -->
+            <!-- Categoría Propia (Select)                                     -->
+            <!-- ============================================================ -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="CategoriaPagina.IdCategoriapropia" class="form-label fw-bold">
+                        Categoría Propia <span class="text-danger">*</span>
+                    </label>
+                    <select asp-for="CategoriaPagina.IdCategoriapropia" class="form-select" id="categoriapropia_id">
+                        <option value="">-- Seleccione Categoría Propia --</option>
+                        @foreach (var cat in Model.CategoriasPropias)
+                        {
+                            <option value="@cat.IdCategoriapropia">@cat.Descripcion</option>
+                        }
+                    </select>
+                    <span asp-validation-for="CategoriaPagina.IdCategoriapropia" class="text-danger"></span>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- Subcategoría (UNSPSC) - Select2 SIN FILTRO                   -->
+            <!-- ============================================================ -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="CategoriaPagina.IdSubcategoria" class="form-label fw-bold">
+                        Subcategoría (UNSPSC) <span class="text-danger">*</span>
+                    </label>
+                    <!-- 
+                        🔥 NO FILTRAMOS POR CATEGORÍA PROPIA
+                        El select2 muestra TODAS las subcategorías disponibles
+                    -->
+                    <select asp-for="CategoriaPagina.IdSubcategoria" 
+                            class="form-select select2-subcategoria"
+                            id="idsubcategoria"
+                            style="width: 100%;">
+                        <option value="">-- Seleccione o Busque Subcategoría --</option>
+                    </select>
+                    <span asp-validation-for="CategoriaPagina.IdSubcategoria" class="text-danger"></span>
+                    <small class="form-text text-muted">Busque por código o nombre de la subcategoría</small>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- Descripción                                                   -->
+            <!-- ============================================================ -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="CategoriaPagina.Descripcion" class="form-label fw-bold">
+                        Descripción <span class="text-danger">*</span>
+                    </label>
+                    <input asp-for="CategoriaPagina.Descripcion" class="form-control" placeholder="Ingrese la descripción" />
+                    <span asp-validation-for="CategoriaPagina.Descripcion" class="text-danger"></span>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- Imagen (opcional)                                              -->
+            <!-- ============================================================ -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="CategoriaPagina.Imagen" class="form-label fw-bold">Imagen (opcional)</label>
+                    <input asp-for="CategoriaPagina.Imagen" class="form-control" placeholder="Nombre del archivo de imagen" />
+                    <small class="form-text text-muted">Ejemplo: categoria_1.jpg</small>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- Estado (Radio Buttons)                                        -->
+            <!-- ============================================================ -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Estado</label>
+                    <div>
+                        <div class="form-check form-check-inline">
+                            <input type="radio" asp-for="CategoriaPagina.Estado" value="1" class="form-check-input" id="estadoActivo" checked />
+                            <label class="form-check-label" for="estadoActivo">Activo</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input type="radio" asp-for="CategoriaPagina.Estado" value="0" class="form-check-input" id="estadoInactivo" />
+                            <label class="form-check-label" for="estadoInactivo">Inactivo</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- BOTONES                                                      -->
+            <!-- ============================================================ -->
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">
+                    💾 Guardar
+                </button>
+                <a asp-page="./Index" class="btn btn-secondary">
+                    ⬅️ Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <!-- Select2 CSS y JS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <style>
+        .select2-result-subcategoria {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 8px;
+            width: 100%;
+        }
+        .select2-result-subcategoria .codigo {
+            font-weight: bold;
+            color: #0d6efd;
+            min-width: 80px;
+            font-family: 'Courier New', monospace;
+        }
+        .select2-result-subcategoria .descripcion {
+            color: #212529;
+            margin-left: 15px;
+            flex: 1;
+        }
+    </style>
+
+    <script>
+        /**
+         * ============================================================
+         * FORMATO DE RESULTADOS PARA SELECT2
+         * Muestra el código y la descripción en dos columnas
+         * ============================================================
+         */
+        function formatSubcategoriaResult(result) {
+            if (result.loading) return result.text;
+            var parts = result.text.split(' - ');
+            var codigo = parts[0] || result.id;
+            var descripcion = parts.slice(1).join(' - ') || '';
+            return $(
+                '<div class="select2-result-subcategoria">' +
+                    '<span class="codigo">' + codigo + '</span>' +
+                    '<span class="descripcion">' + descripcion + '</span>' +
+                '</div>'
+            );
+        }
+
+        function formatSubcategoriaSelection(result) {
+            if (!result.id) return result.text;
+            return result.text || result.id;
+        }
+
+        $(document).ready(function() {
+            var $select = $('#idsubcategoria');
+
+            /**
+             * ============================================================
+             * INICIALIZAR SELECT2 CON BÚSQUEDA AJAX
+             * 🔥 NO FILTRA POR CATEGORÍA PROPIA, MUESTRA TODAS LAS SUBCATEGORÍAS
+             * ============================================================
+             */
+            $select.select2({
+                placeholder: "-- Seleccione o Busque Subcategoría --",
+                allowClear: true,
+                minimumInputLength: 0,
+                ajax: {
+                    // 🔥 Handler que busca subcategorías (SIN filtro por categoría propia)
+                    url: '@Url.Page("Crear", "BuscarSubcategorias")',
+                    dataType: 'json',
+                    delay: 300,
+                    data: function(params) {
+                        return {
+                            term: params.term || ''  // Solo término de búsqueda
+                        };
+                    },
+                    processResults: function(data) {
+                        return { results: data.results };
+                    },
+                    cache: true
+                },
+                templateResult: formatSubcategoriaResult,
+                templateSelection: formatSubcategoriaSelection
+            });
+        });
+    </script>
+}

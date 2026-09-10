@@ -1,0 +1,140 @@
+﻿@page
+@model miTienda.Pages.Web.IndexModel
+@{
+    ViewData["Title"] = "Elfide.com - Tienda Online";
+    Layout = "_Layout";
+}
+
+<!-- CATÁLOGO DE PRODUCTOS (paginado) -->
+<div class="container py-4" style="background-color: #070B12; min-height: 100vh;">
+    @if (Model.ProductosPaginados.Items != null && Model.ProductosPaginados.Items.Any())
+    {
+        <div class="row g-4">
+            @foreach (var item in Model.ProductosPaginados.Items)
+            {
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="card h-100 product-card" style="background-color: #1A1F2E; border: none; border-radius: 12px; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease;"
+                         onmouseover="this.style.transform='translateY(-6px)'; this.style.boxShadow='0 8px 24px rgba(255,166,0,0.2)';"
+                         onmouseout="this.style.transform='none'; this.style.boxShadow='none';"
+                         onclick="window.location.href='/Web/Detalle/@item.IdProducto'">
+                        <div class="card-body text-center p-3">
+                            <div class="product-image mb-2" style="height: 150px; display: flex; align-items: center; justify-content: center;">
+                                @if (!string.IsNullOrEmpty(item.Producto?.Imagen))
+                                {
+                                    <img src="~/images/productos/@item.Producto.Imagen" alt="@item.Producto.Nombre" class="img-fluid" style="max-height: 140px; object-fit: contain;"
+                                         onerror='this.style.display="none"; this.parentElement.innerHTML="<span style=\"font-size:100px;color:#6c757d;\">📦</span>";' />
+                                }
+                                else
+                                {
+                                    <span style="font-size:48px;color:#6c757d;">📦</span>
+                                }
+                            </div>
+                            <h6 class="card-title" style="color: #FAFAFA; font-size: 14px; min-height: 40px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                @(item.Producto?.Nombre ?? "Sin nombre")
+                            </h6>
+                            <p class="card-text" style="color: #FFA600; font-size: 18px; font-weight: bold;">
+                                S/ @(item.PrecioVenta?.ToString("F2") ?? "0.00")  @* ✅ CORREGIDO *@
+                            </p>
+                            <button class="btn w-100 agregar-carrito" style="background-color: #FFA600; color: #070B12; font-weight: bold; border: none; border-radius: 8px; padding: 8px;"
+                                    onmouseover="this.style.backgroundColor='#e69500';" onmouseout="this.style.backgroundColor='#FFA600';"
+                                    onclick="event.stopPropagation(); agregarAlCarrito(@item.IdProducto, '@(item.Producto?.Nombre?.Replace("'", "\\'") ?? "")', @(item.PrecioVenta?.ToString("F2").Replace(",", ".") ?? "0"));">
+                                Agregar al carro
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- ========================================== -->
+        <!-- CONTROLES DE PAGINACIÓN                    -->
+        <!-- ========================================== -->
+        <div class="d-flex justify-content-center mt-4">
+            <nav aria-label="Paginación de productos">
+                <ul class="pagination">
+                    <!-- Anterior -->
+                    <li class="page-item @(Model.ProductosPaginados.HasPrevious ? "" : "disabled")">
+                        <a class="page-link" style="background-color: #1A1F2E; color: #FAFAFA; border-color: #0B6299;"
+                           asp-page="/Web/Index"
+                           asp-route-categoriaId="@Model.CategoriaId"
+                           asp-route-busqueda="@Model.Busqueda"
+                           asp-route-pageNumber="@(Model.ProductosPaginados.PageNumber - 1)">
+                            &laquo;
+                        </a>
+                    </li>
+
+                    <!-- Números de página -->
+                    @{
+                        int startPage = Math.Max(1, Model.ProductosPaginados.PageNumber - 2);
+                        int endPage = Math.Min(Model.ProductosPaginados.TotalPages, Model.ProductosPaginados.PageNumber + 2);
+                    }
+                    @if (startPage > 1)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" style="background-color: #1A1F2E; color: #FAFAFA; border-color: #0B6299;"
+                               asp-page="/Web/Index"
+                               asp-route-categoriaId="@Model.CategoriaId"
+                               asp-route-busqueda="@Model.Busqueda"
+                               asp-route-pageNumber="1">1</a>
+                        </li>
+                        @if (startPage > 2) { <li class="page-item disabled"><span class="page-link" style="background-color: #1A1F2E; color: #FAFAFA; border-color: #0B6299;">…</span></li> }
+                    }
+
+                    @for (int i = startPage; i <= endPage; i++)
+                    {
+                        <li class="page-item @(i == Model.ProductosPaginados.PageNumber ? "active" : "")">
+                            <a class="page-link" style="background-color: @(i == Model.ProductosPaginados.PageNumber ? "#FFA600" : "#1A1F2E"); color: @(i == Model.ProductosPaginados.PageNumber ? "#070B12" : "#FAFAFA"); border-color: #0B6299;"
+                               asp-page="/Web/Index"
+                               asp-route-categoriaId="@Model.CategoriaId"
+                               asp-route-busqueda="@Model.Busqueda"
+                               asp-route-pageNumber="@i">@i</a>
+                        </li>
+                    }
+
+                    @if (endPage < Model.ProductosPaginados.TotalPages)
+                    {
+                        @if (endPage < Model.ProductosPaginados.TotalPages - 1) { <li class="page-item disabled"><span class="page-link" style="background-color: #1A1F2E; color: #FAFAFA; border-color: #0B6299;">…</span></li> }
+                        <li class="page-item">
+                            <a class="page-link" style="background-color: #1A1F2E; color: #FAFAFA; border-color: #0B6299;"
+                               asp-page="/Web/Index"
+                               asp-route-categoriaId="@Model.CategoriaId"
+                               asp-route-busqueda="@Model.Busqueda"
+                               asp-route-pageNumber="@Model.ProductosPaginados.TotalPages">@Model.ProductosPaginados.TotalPages</a>
+                        </li>
+                    }
+
+                    <!-- Siguiente -->
+                    <li class="page-item @(Model.ProductosPaginados.HasNext ? "" : "disabled")">
+                        <a class="page-link" style="background-color: #1A1F2E; color: #FAFAFA; border-color: #0B6299;"
+                           asp-page="/Web/Index"
+                           asp-route-categoriaId="@Model.CategoriaId"
+                           asp-route-busqueda="@Model.Busqueda"
+                           asp-route-pageNumber="@(Model.ProductosPaginados.PageNumber + 1)">
+                            &raquo;
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <!-- Información adicional -->
+        <div class="text-center text-muted mt-2" style="color: #8c8c8c; font-size: 14px;">
+            Mostrando @Model.ProductosPaginados.Items.Count de @Model.ProductosPaginados.TotalItems productos
+            (página @Model.ProductosPaginados.PageNumber de @Model.ProductosPaginados.TotalPages)
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <p style="color: #FAFAFA; font-size: 18px;">No hay productos disponibles.</p>
+            <a asp-page="/Web/Index" class="btn" style="background-color: #FFA600; color: #070B12; font-weight: bold; border-radius: 8px; padding: 10px 30px;">Ver todos los productos</a>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // Scripts específicos de la página Index
+        // Las funciones principales están en _Layout.cshtml
+    </script>
+}

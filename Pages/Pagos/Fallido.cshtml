@@ -1,0 +1,11 @@
+@page
+@{
+    ViewData["Title"] = "Pago Fallido";
+    Layout = "_Layout";
+}
+
+<div class="container py-5 text-center" style="background-color: #070B12; min-height: 100vh; color: #FAFAFA;">
+    <h1 style="color: #FFA600;">❌ Pago Fallido</h1>
+    <p style="font-size: 18px;">Hubo un problema con tu pago. Por favor, intenta nuevamente.</p>
+    <a asp-page="/Pagos/Index" class="btn" style="background-color: #FFA600; color: #070B12; font-weight: bold; border-radius:8px; padding:10px 30px;">Reintentar</a>
+</div>

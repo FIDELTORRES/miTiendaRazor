@@ -1,0 +1,101 @@
+@page
+@model miTienda.Pages.Cuenta.PedidosModel
+@{
+    ViewData["Title"] = "Mis Pedidos";
+    Layout = "_Layout";
+}
+
+<div class="container py-5" style="background-color: #070B12; min-height: 100vh; color: #FAFAFA;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 style="color: #FAFAFA; font-weight: bold;">📦 Mis Pedidos</h2>
+        <a asp-page="/Web/Index" class="btn" style="background-color: #0B6299; color: #FAFAFA; border-radius: 8px; padding: 8px 20px; font-weight: bold; border: 1px solid #FFA600;">
+            ← Seguir comprando
+        </a>
+    </div>
+
+    <!-- Filtros por estado -->
+    <div class="mb-4 d-flex gap-2 flex-wrap">
+        <a asp-page="/Cuenta/Pedidos" asp-route-estado=""
+           class="btn btn-sm" style="background-color: @(string.IsNullOrEmpty(Model.EstadoFiltro) ? "#FFA600" : "#1A1F2E"); color: @(string.IsNullOrEmpty(Model.EstadoFiltro) ? "#070B12" : "#FAFAFA"); border-radius: 6px; font-weight: bold;">
+            Todos
+        </a>
+        <a asp-page="/Cuenta/Pedidos" asp-route-estado="1"
+           class="btn btn-sm" style="background-color: @(Model.EstadoFiltro == "1" ? "#FFA600" : "#1A1F2E"); color: @(Model.EstadoFiltro == "1" ? "#070B12" : "#FAFAFA"); border-radius: 6px; font-weight: bold;">
+            Pendientes
+        </a>
+        <a asp-page="/Cuenta/Pedidos" asp-route-estado="2"
+           class="btn btn-sm" style="background-color: @(Model.EstadoFiltro == "2" ? "#FFA600" : "#1A1F2E"); color: @(Model.EstadoFiltro == "2" ? "#070B12" : "#FAFAFA"); border-radius: 6px; font-weight: bold;">
+            Procesados
+        </a>
+    </div>
+
+    @if (Model.Pedidos != null && Model.Pedidos.Any())
+    {
+        foreach (var pedido in Model.Pedidos)
+        {
+            <div class="card mb-3" style="background-color: #1A1F2E; border: 1px solid #0B6299; border-radius: 12px; padding: 20px;">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div>
+                        <strong style="color: #FFA600; font-size: 18px;">Pedido #@pedido.IdPedidoWeb</strong>
+                        <span style="color: #a0a0a0; margin-left: 12px; font-size: 14px;">
+                            @pedido.Fecha?.ToString("dd/MM/yyyy") - @pedido.Hora?.ToString("HH:mm")
+                        </span>
+                    </div>
+                    <div>
+                        @if (pedido.EstadoPedido == 1)
+                        {
+                            <span class="badge" style="background-color: #FFA600; color: #070B12; padding: 6px 12px;">⏳ Pendiente</span>
+                        }
+                        else if (pedido.EstadoPedido == 2)
+                        {
+                            <span class="badge" style="background-color: #0B6299; color: #FAFAFA; padding: 6px 12px;">✅ Procesado</span>
+                        }
+                        else if (pedido.EstadoPedido == 3)
+                        {
+                            <span class="badge" style="background-color: #28a745; color: white; padding: 6px 12px;">🚚 Enviado</span>
+                        }
+                        else
+                        {
+                            <span class="badge" style="background-color: #6c757d; color: white; padding: 6px 12px;">Estado @pedido.EstadoPedido</span>
+                        }
+                    </div>
+                </div>
+
+                <hr style="border-color: #0B6299;" />
+
+                <div class="row">
+                    <div class="col-md-8">
+                        <p style="color: #a0a0a0; margin: 0; font-size: 14px;">
+                            <strong style="color: #FAFAFA;">📍 Dirección:</strong> @pedido.DireccionEntrega
+                        </p>
+                        <p style="color: #a0a0a0; margin: 0; font-size: 14px;">
+                            <strong style="color: #FAFAFA;">📅 Entrega:</strong> @pedido.FechaEntrega?.ToString("dd/MM/yyyy") - @pedido.HoraEntrega?.ToString("HH:mm")
+                        </p>
+                        <p style="color: #a0a0a0; margin: 0; font-size: 14px;">
+                            <strong style="color: #FAFAFA;">💳 Pago:</strong> @(pedido.MedioPago == 1 ? "Yape" : pedido.MedioPago == 2 ? "Plin" : pedido.MedioPago == 3 ? "Transferencia" : "Otro")
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <p style="color: #FFA600; font-size: 24px; font-weight: bold; margin: 0;">
+                            S/ @pedido.TotalVenta?.ToString("F2")
+                        </p>
+                        <a asp-page="/Cuenta/DetallePedido" asp-route-id="@pedido.IdPedidoWeb"
+                           class="btn btn-sm mt-2" style="background-color: #0B6299; color: #FAFAFA; border-radius: 6px;">
+                            Ver detalle →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <div style="font-size: 80px; margin-bottom: 20px;">📦</div>
+            <p style="color: #a0a0a0; font-size: 18px;">No tienes pedidos aún.</p>
+            <a asp-page="/Web/Index" class="btn mt-3" style="background-color: #FFA600; color: #070B12; font-weight: bold; border-radius: 8px; padding: 10px 30px;">
+                Explorar productos →
+            </a>
+        </div>
+    }
+</div>

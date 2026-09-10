@@ -1,0 +1,162 @@
+@page "{id:int}"
+@model miTienda.Pages.Web.DetalleModel
+@{
+    ViewData["Title"] = Model.Producto?.Producto?.Nombre ?? "Detalle";
+    Layout = "_Layout";
+}
+
+<!-- 
+    PÁGINA DE DETALLE DEL PRODUCTO
+    - Muestra imagen, nombre, descripción, precio, stock disponible
+    - Permite seleccionar cantidad y agregar al carrito
+-->
+
+<div class="container py-5" style="background-color: #070B12; min-height: 100vh; color: #FAFAFA;">
+
+    @if (Model.Producto != null)
+    {
+        <div class="row g-4">
+            <!-- Columna de la imagen -->
+            <div class="col-md-6 text-center">
+                @if (!string.IsNullOrEmpty(Model.Producto.Producto?.Imagen))
+                {
+                  <img src="~/images/productos/@Model.Producto.Producto.Imagen"
+                     alt="@Model.Producto.Producto.Nombre"
+                     class="img-fluid rounded"
+                     style="max-height: 400px; object-fit: contain; box-shadow: 0 4px 12px rgba(0,0,0,0.5);"
+                     onerror='this.style.display="none"; this.parentElement.innerHTML="<span style=\"font-size:100px;color:#6c757d;\">📦</span>";' />
+                }
+                else
+                {
+                    <span style="font-size:100px;color:#6c757d;">📦</span>
+                }
+            </div>
+
+            <!-- Columna de la información -->
+            <div class="col-md-6">
+                <h1 style="color: #FAFAFA; font-size: 28px; font-weight: bold;">@Model.Producto.Producto?.Nombre</h1>
+                <p style="color: #a0a0a0; font-size: 14px;">SKU: @(Model.Producto.Codbarra ?? "N/A")</p>
+
+                <!-- Stock disponible -->
+                <div class="my-3">
+                    <span style="color: #FFA600; font-size: 14px;">Stock disponible:</span>
+                    @if (Model.Producto.Stock > 0)
+                    {
+                        <span class="badge bg-success ms-2" style="font-size: 14px; padding: 4px 12px;">
+                            @Model.Producto.Stock unidades
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger ms-2" style="font-size: 14px; padding: 4px 12px;">Agotado</span>
+                    }
+                </div>
+
+                <!-- Precio -->
+                <h2 style="color: #FFA600; font-size: 32px; font-weight: bold;">
+                    S/ @(Model.Producto.PrecioVenta?.ToString("F2") ?? "0.00")
+                </h2>
+
+                <!-- Descripción -->
+                <div class="mt-3" style="color: #d0d0d0; font-size: 15px; background-color: #1A1F2E; padding: 15px; border-radius: 8px;">
+                    <p>@(Model.Producto.Producto?.Descripcion ?? "Sin descripción disponible.")</p>
+                </div>
+
+                <!-- Selección de cantidad y botón agregar -->
+                <div class="row g-2 mt-4">
+                    <div class="col-4">
+                        <label style="color: #FAFAFA; font-size: 14px; font-weight: bold;">CANTIDAD</label>
+                        <input type="number" id="cantidad" class="form-control" value="1" min="1" 
+                               max="@(Model.Producto.Stock ?? 0)" 
+                               style="background-color: #1A1F2E; color: #FAFAFA; border: 1px solid #0B6299; border-radius: 8px;"
+                               onchange="if(this.value < 1) this.value = 1; if(this.value > @(Model.Producto.Stock ?? 0)) this.value = @(Model.Producto.Stock ?? 0);" />
+                    </div>
+                    <div class="col-8 d-flex align-items-end">
+                        <button class="btn w-100" 
+                                style="background-color: #FFA600; color: #070B12; font-weight: bold; border: none; border-radius: 8px; padding: 12px; transition: background-color 0.2s;"
+                                onmouseover="this.style.backgroundColor='#e69500';" 
+                                onmouseout="this.style.backgroundColor='#FFA600';"
+                                onclick="agregarAlCarrito(@Model.Producto.IdProducto, '@(Model.Producto.Producto?.Nombre?.Replace("'", "\\'") ?? "")', @(Model.Producto.PrecioVenta?.ToString("F2").Replace(",", ".") ?? "0"), document.getElementById('cantidad').value)">
+                            Agregar al carro
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Información adicional (contacto, etc.) -->
+                <hr style="border-color: #0B6299; margin-top: 30px;" />
+                <div class="row mt-2">
+                    <div class="col-4">
+                        <h6 style="color: #FFA600; font-weight: bold;">INFORMACIÓN</h6>
+                        <p style="color: #a0a0a0; font-size: 12px;">@(Model.Producto.Producto?.Descripcion ?? "Sin detalles")</p>
+                    </div>
+                    <div class="col-4">
+                        <h6 style="color: #FFA600; font-weight: bold;">SERVICIO AL CLIENTE</h6>
+                        <p style="color: #a0a0a0; font-size: 12px;">+51 976375628</p>
+                    </div>
+                    <div class="col-4">
+                        <h6 style="color: #FFA600; font-weight: bold;">CONTÁCTANOS</h6>
+                        <p style="color: #a0a0a0; font-size: 12px;">ecoahorroperu@gmail.com</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="text-center">
+            <p style="color: #FAFAFA;">Producto no encontrado.</p>
+            <a asp-page="/Web/Index" class="btn" style="background-color: #FFA600; color: #070B12; font-weight: bold;">Volver al catálogo</a>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <!-- Script para agregar al carrito desde la página de detalle (similar al del catálogo) -->
+    <script>
+        function agregarAlCarrito(productoId, nombre, precio, cantidad) {
+            fetch('/Web/Carrito?handler=Add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                },
+                body: JSON.stringify({ productoId: productoId, cantidad: parseInt(cantidad) || 1 })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('carritoCount').textContent = data.totalItems;
+                    showToast('✅ Producto agregado al carrito');
+                } else {
+                    showToast('❌ Error al agregar el producto');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('❌ Error al agregar el producto');
+            });
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+                background-color: #0B6299; color: #FAFAFA; padding: 12px 24px;
+                border-radius: 8px; z-index: 9999; font-weight: bold;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                transition: opacity 0.3s ease;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+      function mostrarIconoFallback(img) {
+         img.style.display = 'none';
+         img.parentElement.innerHTML = '<span style="font-size:100px;color:#6c757d;">📦</span>';
+      }
+    </script>
+}

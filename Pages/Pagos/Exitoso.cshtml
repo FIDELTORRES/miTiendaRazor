@@ -1,0 +1,26 @@
+@page
+@{
+    ViewData["Title"] = "Pago Exitoso";
+    Layout = "_Layout";
+}
+
+<div class="container py-5 text-center" style="background-color: #070B12; min-height: 100vh; color: #FAFAFA;">
+    <div style="font-size: 80px; margin-bottom: 20px;">✅</div>
+    <h1 style="color: #FFA600; font-weight: bold;">¡Pago Exitoso!</h1>
+    <p style="font-size: 18px; color: #a0a0a0; max-width: 500px; margin: 0 auto;">
+        Tu pedido ha sido registrado correctamente. Recibirás un correo con los detalles.
+    </p>
+    
+    @if (TempData["Success"] != null)
+    {
+        <p style="color: #88ff88; font-size: 16px; margin-top: 10px;">@TempData["Success"]</p>
+    }
+
+    <div class="mt-4">
+        <a asp-page="/Web/Index" class="btn" style="background-color: #FFA600; color: #070B12; font-weight: bold; border-radius:8px; padding:10px 30px; transition: all 0.3s ease;"
+           onmouseover="this.style.backgroundColor='#e69500';" 
+           onmouseout="this.style.backgroundColor='#FFA600';">
+            ← Seguir comprando
+        </a>
+    </div>
+</div>

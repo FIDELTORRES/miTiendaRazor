@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Panel Administrativo</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <!-- Font Awesome 6 (Gratis) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <style>
+        /* Estilos específicos para el panel admin */
+        body {
+            background-color: #f4f6f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .sidebar {
+            background-color: #0B6299;
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+        .sidebar .nav-link {
+            color: #FAFAFA;
+            padding: 12px 20px;
+            border-radius: 8px;
+            transition: background-color 0.2s;
+        }
+        .sidebar .nav-link:hover {
+            background-color: #FFA600;
+            color: #070B12;
+        }
+        .sidebar .nav-link.active {
+            background-color: #FFA600;
+            color: #070B12;
+            font-weight: bold;
+        }
+        .main-content {
+            padding: 20px;
+        }
+        .navbar-admin {
+            background-color: #1A1F2E;
+            color: #FAFAFA;
+            padding: 12px 20px;
+            border-radius: 0 0 12px 12px;
+            margin-bottom: 20px;
+        }
+        .navbar-admin h4 {
+            margin: 0;
+            color: #FFA600;
+        }
+        .logout-btn {
+            color: #FAFAFA;
+            background-color: #dc3545;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        .logout-btn:hover {
+            background-color: #c82333;
+        }
+        @@media (max-width: 768px) {
+            .sidebar {
+                min-height: auto;
+                padding: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid p-0">
+        <div class="row g-0">
+            <!-- =============================== -->
+            <!-- SIDEBAR (Menú Administrativo)   -->
+            <!-- =============================== -->
+            <div class="col-md-3 col-lg-2 sidebar">
+                <div class="text-center mb-4">
+                    <h5 style="color: #FFA600; font-weight: bold;">⚙️ Panel Admin</h5>
+                    <hr style="border-color: #FFA600;" />
+                </div>
+                <nav class="nav flex-column">
+                    <a class="nav-link" asp-page="/Admin/Dashboard">📊 Dashboard</a>
+                    <a class="nav-link active" asp-page="/Admin/Productos/Productos">📦 Productos</a>
+
+                    <!-- MENÚ DESPLEGABLE DE CATEGORÍAS -->
+                    <div class="nav-item">
+                        <a class="nav-link d-flex justify-content-between align-items-center" 
+                        data-bs-toggle="collapse" 
+                        href="#submenuCategorias" 
+                        role="button" 
+                        aria-expanded="false" 
+                        aria-controls="submenuCategorias">
+                            <span>📂 Categorías</span>
+                            <small class="ms-1">▼</small>
+                        </a>
+                        <div class="collapse ms-3" id="submenuCategorias">
+                            <nav class="nav flex-column">
+                                <a class="nav-link py-1 text-white-50" asp-page="/Admin/Categorias/Categoriapropia/Index">
+                                    • Categoría propia
+                                </a>
+                                <a class="nav-link py-1 text-white-50" asp-page="/Admin/Categorias/Categoriapagina/Index">
+                                    • Categoría página
+                                </a>
+                                <a class="nav-link py-1 text-white-50" asp-page="/Admin/Categorias/Subcategoriapagina/Index">
+                                    • Subcategoría página
+                                </a>
+                            </nav>
+                        </div>
+                    </div>
+
+                    <a class="nav-link" asp-page="/Admin/Pedidos">🛒 Pedidos</a>
+                    <a class="nav-link" asp-page="/Admin/Usuarios">👤 Usuarios</a>
+                    <a class="nav-link" asp-page="/Admin/Configuracion">⚙️ Configuración</a>
+                    <hr style="border-color: #FFA600;" />
+                    <a class="nav-link" asp-page="/Web/Index" style="color: #FFA600;">🏠 Ir a la Tienda</a>
+                </nav>
+            </div>
+
+            <!-- =============================== -->
+            <!-- CONTENIDO PRINCIPAL             -->
+            <!-- =============================== -->
+            <div class="col-md-9 col-lg-10 main-content">
+                <!-- Barra superior (opcional) -->
+                <div class="navbar-admin d-flex justify-content-between align-items-center">
+                    <h4>@ViewData["Title"]</h4>
+                    <div>
+                        <span style="color: #FAFAFA; margin-right: 16px;">👤 Admin</span>
+                        <button class="logout-btn" onclick="window.location.href='/Logout'">Cerrar sesión</button>
+                    </div>
+                </div>
+
+                <!-- Renderizar el contenido de la página -->
+                <main role="main">
+                    @RenderBody()
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
