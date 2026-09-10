@@ -1,42 +1,87 @@
 @page
 @model miTienda.Pages.Pagos.TransferenciaModel
 @{
-    ViewData["Title"] = "Pago por Transferencia";
+    ViewData["Title"] = "Transferencia Bancaria";
     Layout = "_Layout";
 }
 
 <div class="container py-5" style="background-color: #070B12; min-height: 100vh; color: #FAFAFA;">
-    <h2 style="color: #FAFAFA; font-weight: bold;">🏦 Pago por Transferencia Bancaria</h2>
-    <hr style="border-color: #0B6299;" />
-
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card" style="background-color: #1A1F2E; border: none; border-radius: 12px; padding: 20px;">
+        <div class="col-lg-6">
+            <div class="card" style="background-color: #1A1F2E; border: none; border-radius: 12px; padding: 32px;">
+                <div class="text-center">
+                    <div style="font-size: 60px; margin-bottom: 10px;">🏦</div>
+                    <h4 style="color: #FFA600; font-weight: bold;">Transferencia Bancaria</h4>
+                    <p style="color: #a0a0a0;">Realiza el depósito o transferencia a nuestra cuenta.</p>
+                </div>
+                <hr style="border-color: #0B6299;" />
+
+                <!-- Datos de la cuenta -->
+                <div style="background-color: #070B12; padding: 20px; border-radius: 8px; border: 1px solid #0B6299; margin-bottom: 20px;">
+                    <h5 style="color: #FFA600;">Datos de la cuenta bancaria</h5>
+                    <hr style="border-color: #0B6299;" />
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p style="color: #a0a0a0; margin: 0;">
+                                <strong style="color: #FAFAFA;">Banco:</strong> BCP
+                            </p>
+                            <p style="color: #a0a0a0; margin: 0;">
+                                <strong style="color: #FAFAFA;">Tipo de Cuenta:</strong> Ahorros
+                            </p>
+                            <p style="color: #a0a0a0; margin: 0;">
+                                <strong style="color: #FAFAFA;">Número de Cuenta:</strong> 191-1234567-8
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p style="color: #a0a0a0; margin: 0;">
+                                <strong style="color: #FAFAFA;">CCI:</strong> 002-191-123456789012-34
+                            </p>
+                            <p style="color: #a0a0a0; margin: 0;">
+                                <strong style="color: #FAFAFA;">Titular:</strong> Elfide SAC
+                            </p>
+                            <p style="color: #a0a0a0; margin: 0;">
+                                <strong style="color: #FAFAFA;">RUC:</strong> 10413820532
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resumen del pedido -->
+                <div style="background-color: #070B12; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <div class="d-flex justify-content-between">
+                        <span style="color: #a0a0a0;">Total a pagar:</span>
+                        <span style="color: #FFA600; font-weight: bold; font-size: 24px;">S/ @(Model.Total?.ToString("F2") ?? "0.00")</span>
+                    </div>
+                </div>
+
+                <!-- Formulario de confirmación -->
                 <form method="post">
+                    @Html.AntiForgeryToken()
+                    
                     <div class="mb-3">
-                        <label class="form-label" style="color: #FAFAFA;">Fecha de la transferencia</label>
-                        <input type="date" name="Fecha" class="form-control" style="background-color: #070B12; color: #FAFAFA; border: 1px solid #0B6299;" required />
+                        <label class="form-label" style="color: #FAFAFA; font-weight: bold;">
+                            Número de operación
+                        </label>
+                        <input type="text" asp-for="NumeroOperacion" class="form-control" 
+                               style="background-color: #070B12; color: #FAFAFA; border-color: #0B6299; border-radius: 8px; padding: 12px;"
+                               placeholder="Ingresa el número de operación de tu transferencia" required />
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label" style="color: #FAFAFA;">Hora de la transferencia</label>
-                        <input type="time" name="Hora" class="form-control" style="background-color: #070B12; color: #FAFAFA; border: 1px solid #0B6299;" required />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" style="color: #FAFAFA;">Número de transacción</label>
-                        <input type="text" name="NroTransaccion" class="form-control" style="background-color: #070B12; color: #FAFAFA; border: 1px solid #0B6299;" required />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" style="color: #FAFAFA;">Monto transferido</label>
-                        <input type="number" step="0.01" name="Monto" class="form-control" style="background-color: #070B12; color: #FAFAFA; border: 1px solid #0B6299;" required />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" style="color: #FAFAFA;">Nombre y apellidos del remitente</label>
-                        <input type="text" name="Remitente" class="form-control" style="background-color: #070B12; color: #FAFAFA; border: 1px solid #0B6299;" required />
-                    </div>
-                    <button type="submit" class="btn w-100" style="background-color: #FFA600; color: #070B12; font-weight: bold; border-radius: 8px; padding: 12px;">
-                        Confirmar Pago
+
+                    <button type="submit" class="btn w-100" style="background-color: #FFA600; color: #070B12; font-weight: bold; border-radius: 8px; padding: 14px; font-size: 18px; transition: all 0.3s ease;"
+                            onmouseover="this.style.backgroundColor='#e69500';" 
+                            onmouseout="this.style.backgroundColor='#FFA600';">
+                        ✅ Confirmar Transferencia
                     </button>
                 </form>
+
+                <div class="text-center mt-3">
+                    <a asp-page="/Pagos/Index" class="btn" style="background-color: #0B6299; color: #FAFAFA; border-radius: 8px; padding: 10px 24px; font-weight: bold; transition: all 0.3s ease;"
+                       onmouseover="this.style.backgroundColor='#FFA600'; this.style.color='#070B12';" 
+                       onmouseout="this.style.backgroundColor='#0B6299'; this.style.color='#FAFAFA';">
+                        ← Volver a métodos de pago
+                    </a>
+                </div>
             </div>
         </div>
     </div>

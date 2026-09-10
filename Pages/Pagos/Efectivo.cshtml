@@ -1,0 +1,75 @@
+@page
+@model miTienda.Pages.Pagos.EfectivoModel
+@{
+    ViewData["Title"] = "Pago en Efectivo";
+    Layout = "_Layout";
+}
+
+<div class="container py-5" style="background-color: #070B12; min-height: 100vh; color: #FAFAFA;">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card" style="background-color: #1A1F2E; border: none; border-radius: 12px; padding: 32px;">
+                <div class="text-center">
+                    <div style="font-size: 60px; margin-bottom: 10px;">💵</div>
+                    <h4 style="color: #FFA600; font-weight: bold;">Pago en Efectivo</h4>
+                    <p style="color: #a0a0a0;">Paga al recibir tu pedido (solo Lima).</p>
+                </div>
+                <hr style="border-color: #0B6299;" />
+
+                <!-- Resumen del pedido -->
+                <div style="background-color: #070B12; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <div class="d-flex justify-content-between">
+                        <span style="color: #a0a0a0;">Total a pagar:</span>
+                        <span style="color: #FFA600; font-weight: bold; font-size: 24px;">S/ @(Model.Total?.ToString("F2") ?? "0.00")</span>
+                    </div>
+                </div>
+
+                <!-- Formulario de datos de envío -->
+                <form method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label" style="color: #FAFAFA; font-weight: bold;">Nombres y Apellidos</label>
+                            <input type="text" asp-for="Pedido.Nombre" class="form-control" 
+                                   style="background-color: #070B12; color: #FAFAFA; border-color: #0B6299; border-radius: 8px; padding: 12px;"
+                                   placeholder="Juan Pérez" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" style="color: #FAFAFA; font-weight: bold;">Teléfono</label>
+                            <input type="tel" asp-for="Pedido.Telefono" class="form-control" 
+                                   style="background-color: #070B12; color: #FAFAFA; border-color: #0B6299; border-radius: 8px; padding: 12px;"
+                                   placeholder="987654321" required />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label" style="color: #FAFAFA; font-weight: bold;">Dirección de Envío</label>
+                            <textarea asp-for="Pedido.Direccion" class="form-control" rows="3" 
+                                      style="background-color: #070B12; color: #FAFAFA; border-color: #0B6299; border-radius: 8px; padding: 12px;"
+                                      placeholder="Av. Principal 123, Urbanización..." required></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label" style="color: #FAFAFA; font-weight: bold;">Indicaciones adicionales (opcional)</label>
+                            <textarea asp-for="Pedido.Indicaciones" class="form-control" rows="2" 
+                                      style="background-color: #070B12; color: #FAFAFA; border-color: #0B6299; border-radius: 8px; padding: 12px;"
+                                      placeholder="Piso 2, timbre, etc."></textarea>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn w-100 mt-3" style="background-color: #FFA600; color: #070B12; font-weight: bold; border-radius: 8px; padding: 14px; font-size: 18px; transition: all 0.3s ease;"
+                            onmouseover="this.style.backgroundColor='#e69500';" 
+                            onmouseout="this.style.backgroundColor='#FFA600';">
+                        ✅ Confirmar Pedido
+                    </button>
+                </form>
+
+                <div class="text-center mt-3">
+                    <a asp-page="/Pagos/Index" class="btn" style="background-color: #0B6299; color: #FAFAFA; border-radius: 8px; padding: 10px 24px; font-weight: bold; transition: all 0.3s ease;"
+                       onmouseover="this.style.backgroundColor='#FFA600'; this.style.color='#070B12';" 
+                       onmouseout="this.style.backgroundColor='#0B6299'; this.style.color='#FAFAFA';">
+                        ← Volver a métodos de pago
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -31,45 +31,42 @@ namespace miTienda.Services
         /// <param name="htmlMessage">Contenido HTML del correo</param>
         public async Task SendEmailAsync(string to, string subject, string htmlMessage)
         {
-            // 1. Crear un nuevo mensaje de correo
+            var sender = _configuration["Email:Sender"];
+            var host = _configuration["Email:Host"];
+            var portText = _configuration["Email:Port"];
+            var username = _configuration["Email:Username"];
+            var password = _configuration["Email:Password"];
+
+            if (string.IsNullOrWhiteSpace(sender) ||
+                string.IsNullOrWhiteSpace(host) ||
+                string.IsNullOrWhiteSpace(portText) ||
+                string.IsNullOrWhiteSpace(username) ||
+                string.IsNullOrWhiteSpace(password))
+            {
+                throw new InvalidOperationException("Faltan configuraciones de Email en appsettings.json.");
+            }
+
+            if (!int.TryParse(portText, out var port))
+            {
+                throw new InvalidOperationException("El puerto SMTP configurado no es válido.");
+            }
+
             var email = new MimeMessage();
-
-            // 2. Configurar el remitente (desde appsettings.json)
-            email.From.Add(new MailboxAddress("Elfide.com", _configuration["Email:Sender"]));
-
-            // 3. Configurar el destinatario
-            email.To.Add(new MailboxAddress("", to));
-
-            // 4. Configurar el asunto del correo
+            email.From.Add(new MailboxAddress("Elfide.com", sender));
+            email.To.Add(new MailboxAddress(string.Empty, to));
             email.Subject = subject;
 
-            // 5. Crear el cuerpo del mensaje en formato HTML
             var bodyBuilder = new BodyBuilder
             {
                 HtmlBody = htmlMessage
             };
             email.Body = bodyBuilder.ToMessageBody();
 
-            // 6. Crear el cliente SMTP para enviar el correo
             using var smtp = new SmtpClient();
 
-            // 7. Conectar al servidor SMTP (Gmail, Outlook, etc.)
-            await smtp.ConnectAsync(
-                _configuration["Email:Host"],                              // Servidor SMTP (ej: smtp.gmail.com)
-                int.Parse(_configuration["Email:Port"]),                 // Puerto (587 para TLS)
-                SecureSocketOptions.StartTls                            // Usar TLS para seguridad
-            );
-
-            // 8. Autenticarse con el servidor SMTP
-            await smtp.AuthenticateAsync(
-                _configuration["Email:Username"],                       // Tu correo
-                _configuration["Email:Password"]                        // Tu contraseña o contraseña de aplicación
-            );
-
-            // 9. Enviar el correo
+            await smtp.ConnectAsync(host, port, SecureSocketOptions.StartTls);
+            await smtp.AuthenticateAsync(username, password);
             await smtp.SendAsync(email);
-
-            // 10. Desconectar del servidor SMTP
             await smtp.DisconnectAsync(true);
         }
     }

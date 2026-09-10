@@ -7,12 +7,12 @@
 
 <div class="container py-4" style="background-color: #070B12; min-height: 100vh; color: #FAFAFA;">
     <div class="row justify-content-center">
-        <div class="col-lg-8">
+        <div class="col-lg-10">
             <div class="card" style="background-color: #1A1F2E; border: none; border-radius: 12px; padding: 32px;">
                 
-                @if (!User.Identity.IsAuthenticated)
+                @if (User.Identity?.IsAuthenticated != true)
                 {
-                    <!-- ⚠️ Usuario NO logueado - Mostrar opciones de login/registro -->
+                    <!-- ⚠️ Usuario NO logueado -->
                     <div class="text-center">
                         <div style="font-size: 60px; margin-bottom: 20px;">🔐</div>
                         <h3 style="color: #FAFAFA;">Para continuar, necesitas iniciar sesión</h3>
@@ -21,7 +21,6 @@
                             <br />
                             <span style="color: #FFA600;">¡Tu carrito se mantendrá!</span>
                         </p>
-
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <a asp-page="/Auth/Login" asp-route-returnUrl="/Pagos/Confirmar?metodo=@Model.Metodo" 
@@ -36,70 +35,291 @@
                                 </a>
                             </div>
                         </div>
-
-                        <div class="mt-4">
-                            <p style="color: #6c6c6c; font-size: 14px;">
-                                Al crear una cuenta podrás: <br />
-                                ✅ Ver el estado de tus pedidos <br />
-                                ✅ Guardar tus direcciones de envío <br />
-                                ✅ Acceder a ofertas exclusivas
-                            </p>
-                        </div>
                     </div>
                 }
                 else
                 {
-                    <!-- ✅ Usuario logueado - Mostrar formulario de confirmación -->
+                    <!-- ✅ Usuario logueado -->
                     <h4 style="color: #FFA600; font-weight: bold;">📦 Confirmar Pedido</h4>
-                    <p style="color: #a0a0a0;">Completa tus datos de envío para finalizar la compra.</p>
+                    <p style="color: #a0a0a0;">Completa tus datos de envío y confirma tu pago.</p>
                     <hr style="border-color: #0B6299;" />
 
                     <form method="post">
+                        @Html.AntiForgeryToken()
                         <input type="hidden" asp-for="Metodo" />
 
-                        <div class="row g-3">
+                        <div class="row g-4">
+                            <!-- ============================================================ -->
+                            <!-- 📌 COLUMNA IZQUIERDA: DATOS DEL CLIENTE                     -->
+                            <!-- ============================================================ -->
                             <div class="col-md-6">
-                                <label style="color: #FAFAFA;">Nombres y Apellidos</label>
-                                <input type="text" asp-for="Pedido.IdCliente" class="form-control" 
-                                       style="background-color: #070B12; color: #FAFAFA; border-color: #0B6299;" 
-                                       placeholder="Ej: Juan Pérez" required />
+                                <div class="card" style="background-color: #070B12; border: 1px solid #0B6299; border-radius: 8px; padding: 20px;">
+                                    <h5 style="color: #FFA600; font-weight: bold;">👤 Datos del Cliente</h5>
+                                    <hr style="border-color: #0B6299;" />
+
+                                    <!-- Nombres y Apellidos -->
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <label class="form-label" style="color: #a0a0a0; font-size: 13px;">Nombres</label>
+                                            <input type="text" class="form-control" value="@Model.NombresCliente" 
+                                                   style="background-color: #1A1F2E; color: #FAFAFA; border-color: #0B6299; border-radius: 8px; padding: 10px; font-weight: bold;" readonly />
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label" style="color: #a0a0a0; font-size: 13px;">Apellidos</label>
+                                            <input type="text" class="form-control" value="@Model.ApellidosCliente" 
+                                                   style="background-color: #1A1F2E; color: #FAFAFA; border-color: #0B6299; border-radius: 8px; padding: 10px; font-weight: bold;" readonly />
+                                        </div>
+                                    </div>
+
+                                    <!-- Teléfono -->
+                                    <div class="mt-2">
+                                        <label class="form-label" style="color: #a0a0a0; font-size: 13px;">Teléfono</label>
+                                        <input type="text" class="form-control" value="@Model.TelefonoCliente" 
+                                               style="background-color: #1A1F2E; color: #FAFAFA; border-color: #0B6299; border-radius: 8px; padding: 10px;" readonly />
+                                    </div>
+
+                                    <!-- Dirección -->
+                                    <div class="mt-3">
+                                        <label class="form-label" style="color: #FAFAFA; font-weight: bold;">Dirección de Envío</label>
+                                        <div class="d-flex gap-3 mb-2">
+                                            <div class="form-check">
+                                                <input type="radio" id="direccionCliente" name="tipoDireccion" value="cliente" checked 
+                                                       class="form-check-input" style="background-color: #070B12; border-color: #0B6299;" />
+                                                <label for="direccionCliente" class="form-check-label" style="color: #a0a0a0; font-size: 14px;">
+                                                    Usar mi dirección guardada
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input type="radio" id="direccionNueva" name="tipoDireccion" value="nueva" 
+                                                       class="form-check-input" style="background-color: #070B12; border-color: #0B6299;" />
+                                                <label for="direccionNueva" class="form-check-label" style="color: #a0a0a0; font-size: 14px;">
+                                                    Nueva dirección
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <textarea asp-for="Pedido.DireccionEntrega" class="form-control" rows="2" 
+                                                  style="background-color: #070B12; color: #FAFAFA; border-color: #0B6299; border-radius: 8px; padding: 12px;"
+                                                  placeholder="Av. Principal 123, Urbanización..." required>@Model.DireccionCliente</textarea>
+                                    </div>
+
+                                    <!-- Fecha y hora de entrega -->
+                                    <div class="row g-2 mt-3">
+                                        <div class="col-6">
+                                            <label class="form-label" style="color: #a0a0a0; font-size: 13px;">Fecha de Entrega</label>
+                                            <input type="date" asp-for="Pedido.FechaEntrega" class="form-control" 
+                                                   style="background-color: #070B12; color: #FAFAFA; border-color: #0B6299; border-radius: 8px; padding: 10px;"
+                                                   min="@DateTime.Now.ToString("yyyy-MM-dd")" 
+                                                   value="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")" required />
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label" style="color: #a0a0a0; font-size: 13px;">Hora de Entrega</label>
+                                            <select asp-for="Pedido.HoraEntrega" class="form-control" 
+                                                    style="background-color: #070B12; color: #FAFAFA; border-color: #0B6299; border-radius: 8px; padding: 10px;" required>
+                                                <option value="">-- Selecciona --</option>
+                                                @foreach (var horario in Model.Horarios)
+                                                {
+                                                    <option value="@horario.HoraEntrega">@horario.HoraEntrega</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- Indicaciones -->
+                                    <div class="mt-2">
+                                        <label class="form-label" style="color: #a0a0a0; font-size: 13px;">Indicaciones (opcional)</label>
+                                        <textarea asp-for="Pedido.Indicaciones" class="form-control" rows="1" 
+                                                  style="background-color: #070B12; color: #FAFAFA; border-color: #0B6299; border-radius: 8px; padding: 10px;"
+                                                  placeholder="Ej: Piso 2, timbre, etc."></textarea>
+                                    </div>
+                                </div>
                             </div>
+
+                            <!-- ============================================================ -->
+                            <!-- 📌 COLUMNA DERECHA: CONFIRMACIÓN DE PAGO                   -->
+                            <!-- ============================================================ -->
                             <div class="col-md-6">
-                                <label style="color: #FAFAFA;">Teléfono</label>
-                                <input type="tel" asp-for="Pedido.IdCajero" class="form-control" 
-                                       style="background-color: #070B12; color: #FAFAFA; border-color: #0B6299;" 
-                                       placeholder="Ej: 987654321" required />
-                            </div>
-                            <div class="col-12">
-                                <label style="color: #FAFAFA;">Dirección de Envío</label>
-                                <textarea asp-for="Pedido.DireccionEntrega" class="form-control" rows="3" 
-                                          style="background-color: #070B12; color: #FAFAFA; border-color: #0B6299;" 
-                                          placeholder="Av. Principal 123, Urbanización..." required></textarea>
-                            </div>
-                            <div class="col-12">
-                                <label style="color: #FAFAFA;">Indicaciones adicionales (opcional)</label>
-                                <textarea asp-for="Pedido.Indicaciones" class="form-control" rows="2" 
-                                          style="background-color: #070B12; color: #FAFAFA; border-color: #0B6299;" 
-                                          placeholder="Ej: Piso 2, timbre, etc."></textarea>
+                                <div class="card" style="background-color: #070B12; border: 1px solid #0B6299; border-radius: 8px; padding: 20px;">
+                                    <h5 style="color: #FFA600; font-weight: bold;">💳 Confirmación de Pago</h5>
+                                    <hr style="border-color: #0B6299;" />
+
+                                    <!-- ============================================================ -->
+                                    <!-- QR Y CÓDIGO DE TRANSACCIÓN (YAPE / PLIN)                     -->
+                                    <!-- ============================================================ -->
+
+                                    @if (Model.Metodo == "yape" || Model.Metodo == "plin")
+                                    {
+                                        <div class="text-center">
+                                            <div style="font-size: 40px; margin-bottom: 4px;">
+                                                @if (Model.Metodo == "yape") { <span>📱</span> } else { <span>🏦</span> }
+                                            </div>
+                                            <h6 style="color: #FAFAFA; font-weight: bold;">
+                                                @(Model.Metodo == "yape" ? "Pago con Yape" : "Pago con Plin")
+                                            </h6>
+                                            <p style="color: #a0a0a0; font-size: 13px;">
+                                                Escanea el QR con la app @(Model.Metodo == "yape" ? "Yape" : "Plin")
+                                            </p>
+
+                                            <!-- QR -->
+                                            <div style="background-color: white; padding: 12px; border-radius: 12px; display: inline-block; margin-bottom: 10px;">
+                                                <img src="~/images/pagos/@(Model.Metodo == "yape" ? "yape-qr.png" : "plin-qr.png")" 
+                                                     alt="Código QR @Model.MetodoDisplay" 
+                                                     style="width: 150px; height: 150px; object-fit: contain;"
+                                                     onerror='this.style.display="none"; this.parentElement.innerHTML="<div style=\"font-size:50px;color:#6c757d;\">📱</div>";' />
+                                            </div>
+
+                                            <!-- Código de transacción -->
+                                            <div style="background-color: #1A1F2E; padding: 8px; border-radius: 6px; border: 1px solid #0B6299; margin-bottom: 10px;">
+                                                <p style="color: #a0a0a0; font-size: 12px; margin: 0;">
+                                                    <strong style="color: #FAFAFA;">Código de transacción:</strong>
+                                                    <span style="color: #FFA600; font-weight: bold; display: block; font-size: 14px;">
+                                                        @Model.CodigoTransaccion
+                                                    </span>
+                                                </p>
+                                            </div>
+
+                                            <!-- Instrucciones -->
+                                            <div style="background-color: #1A1F2E; padding: 8px; border-radius: 6px; border-left: 3px solid #FFA600; text-align: left; margin-bottom: 10px;">
+                                                <p style="color: #a0a0a0; font-size: 12px; margin: 0;">
+                                                    <strong style="color: #FAFAFA;">Instrucciones:</strong><br />
+                                                    1. Abre @(Model.Metodo == "yape" ? "Yape" : "Plin")<br />
+                                                    2. Escanea el QR<br />
+                                                    3. Paga <strong style="color: #FFA600;">S/ @(Model.TotalConIgv.ToString("F2"))</strong><br />
+                                                    4. Ingresa el código abajo
+                                                </p>
+                                            </div>
+
+                                            <!-- Campo código de confirmación -->
+                                            <div class="mb-2">
+                                                <label class="form-label" style="color: #FAFAFA; font-size: 13px; font-weight: bold;">Código de confirmación</label>
+                                                <input type="text" asp-for="CodigoConfirmacion" class="form-control" 
+                                                       style="background-color: #070B12; color: #FAFAFA; border-color: #0B6299; border-radius: 8px; padding: 10px;"
+                                                       placeholder="Ej: @(Model.Metodo == "yape" ? "YAPE-20260908-1234" : "PLIN-20260908-5678")" required />
+                                                <span asp-validation-for="CodigoConfirmacion" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                    }
+
+                                    @if (Model.Metodo == "transferencia")
+                                    {
+                                        <div style="background-color: #1A1F2E; padding: 12px; border-radius: 6px; border: 1px solid #0B6299; margin-bottom: 12px;">
+                                            <h6 style="color: #FFA600; font-weight: bold;">💳 Transferencia Bancaria</h6>
+                                            <p style="color: #a0a0a0; font-size: 13px;">Depósito o transferencia a nuestra cuenta.</p>
+                                            <div class="row" style="font-size: 13px;">
+                                                <div class="col-6">
+                                                    <p style="color: #a0a0a0; margin: 0;"><strong style="color: #FAFAFA;">Banco:</strong> BCP</p>
+                                                    <p style="color: #a0a0a0; margin: 0;"><strong style="color: #FAFAFA;">Cuenta:</strong> 191-1234567-8</p>
+                                                </div>
+                                                <div class="col-6">
+                                                    <p style="color: #a0a0a0; margin: 0;"><strong style="color: #FAFAFA;">CCI:</strong> 002-191-123456789012-34</p>
+                                                    <p style="color: #a0a0a0; margin: 0;"><strong style="color: #FAFAFA;">Titular:</strong> Elfide SAC</p>
+                                                </div>
+                                            </div>
+                                            <div class="mt-2">
+                                                <label class="form-label" style="color: #FAFAFA; font-size: 13px; font-weight: bold;">Número de operación</label>
+                                                <input type="text" asp-for="CodigoConfirmacion" class="form-control" 
+                                                       style="background-color: #070B12; color: #FAFAFA; border-color: #0B6299; border-radius: 8px; padding: 10px;"
+                                                       placeholder="Ej: 1234567890" required />
+                                                <span asp-validation-for="CodigoConfirmacion" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                    }
+
+                                    <!-- ============================================================ -->
+                                    <!-- RESUMEN DEL PEDIDO                                          -->
+                                    <!-- ============================================================ -->
+
+                                    <div style="background-color: #1A1F2E; padding: 12px; border-radius: 6px; margin-top: 10px;">
+                                        <h6 style="color: #FFA600; font-weight: bold;">🛒 Resumen del Pedido</h6>
+                                        <hr style="border-color: #0B6299; margin: 6px 0;" />
+
+                                        @if (Model.Items != null && Model.Items.Any())
+                                        {
+                                            foreach (var item in Model.Items)
+                                            {
+                                                <div class="d-flex justify-content-between align-items-center" style="border-bottom: 1px solid #0B6299; padding: 4px 0;">
+                                                    <span style="color: #FAFAFA; font-size: 13px;">@item.Nombre x @item.Cantidad</span>
+                                                    <span style="color: #FFA600; font-size: 13px;">S/ @(item.Subtotal?.ToString("F2") ?? "0.00")</span>
+                                                </div>
+                                            }
+                                        }
+
+                                        <div style="margin-top: 8px;">
+                                            <div class="d-flex justify-content-between" style="font-size: 13px;">
+                                                <span style="color: #a0a0a0;">Subtotal:</span>
+                                                <span style="color: #FFA600;">S/ @(Model.Subtotal.ToString("F2"))</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between" style="font-size: 13px;">
+                                                <span style="color: #a0a0a0;">IGV (18%):</span>
+                                                <span style="color: #FFA600;">S/ @(Model.Igv.ToString("F2"))</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between" style="font-size: 18px; font-weight: bold; margin-top: 6px; border-top: 2px solid #FFA600; padding-top: 6px;">
+                                                <span style="color: #FAFAFA;">Total a pagar:</span>
+                                                <span style="color: #FFA600;">S/ @(Model.TotalConIgv.ToString("F2"))</span>
+                                            </div>
+                                            <p style="color: #8c8c8c; font-size: 12px; margin-top: 4px;">
+                                                Método de pago: <strong style="color: #FFA600;">@Model.MetodoDisplay</strong>
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Botón Confirmar -->
+                                    <button type="submit" class="btn w-100 mt-3" style="background-color: #FFA600; color: #070B12; font-weight: bold; border-radius: 8px; padding: 12px; font-size: 16px; transition: all 0.3s ease;"
+                                            onmouseover="this.style.backgroundColor='#e69500';" 
+                                            onmouseout="this.style.backgroundColor='#FFA600';">
+                                        ✅ Confirmar Pedido
+                                    </button>
+                                </div>
                             </div>
                         </div>
-
-                        <!-- Resumen del pedido -->
-                        <hr style="border-color: #0B6299; margin-top: 24px;" />
-                        <div class="d-flex justify-content-between" style="font-size: 18px;">
-                            <span style="color: #FAFAFA;">Total a pagar:</span>
-                            <span style="color: #FFA600; font-weight: bold; font-size: 24px;">S/ @(Model.TotalConIgv.ToString("F2"))</span>
-                        </div>
-                        <p style="color: #8c8c8c; font-size: 14px;">Método de pago: <strong style="color: #FFA600;">@Model.MetodoPagoDisplay</strong></p>
-
-                        <button type="submit" class="btn w-100 mt-3" style="background-color: #FFA600; color: #070B12; font-weight: bold; border-radius: 8px; padding: 14px; font-size: 18px; transition: all 0.3s ease;"
-                                onmouseover="this.style.backgroundColor='#e69500';" 
-                                onmouseout="this.style.backgroundColor='#FFA600';">
-                            ✅ Confirmar Pedido
-                        </button>
                     </form>
                 }
+
+                <!-- Botón volver -->
+                <div class="text-center mt-4">
+                    <a asp-page="/Pagos/Index" class="btn" style="background-color: #0B6299; color: #FAFAFA; border-radius: 8px; padding: 10px 24px; font-weight: bold; transition: all 0.3s ease;"
+                       onmouseover="this.style.backgroundColor='#FFA600'; this.style.color='#070B12';" 
+                       onmouseout="this.style.backgroundColor='#0B6299'; this.style.color='#FAFAFA';">
+                        ← Volver a métodos de pago
+                    </a>
+                </div>
+
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // ✅ Manejar selección de dirección
+        document.addEventListener('DOMContentLoaded', function() {
+            const radioCliente = document.getElementById('direccionCliente');
+            const radioNueva = document.getElementById('direccionNueva');
+            const textarea = document.querySelector('textarea[name="Pedido.DireccionEntrega"]');
+
+            if (radioCliente && radioNueva && textarea) {
+                const direccionCliente = '@Model.DireccionCliente';
+
+                radioCliente.addEventListener('change', function() {
+                    if (this.checked) {
+                        textarea.value = direccionCliente;
+                    }
+                });
+
+                radioNueva.addEventListener('change', function() {
+                    if (this.checked) {
+                        textarea.value = '';
+                        textarea.focus();
+                    }
+                });
+
+                // Si no hay dirección, seleccionar "Nueva dirección"
+                if (!direccionCliente || direccionCliente === '') {
+                    radioNueva.checked = true;
+                    radioCliente.checked = false;
+                    textarea.value = '';
+                }
+            }
+        });
+    </script>
+}

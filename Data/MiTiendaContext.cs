@@ -35,6 +35,7 @@ namespace miTienda.Data
         public DbSet<DetalleWeb> DetallesWeb { get; set; }
         public DbSet<Pago> Pagos { get; set; }
         public DbSet<PagoMercadoPago> PagosMercadoPago { get; set; }
+        public DbSet<HorarioEntrega> HorariosEntrega { get; set; }
 
         // ============================================================
         // 📌 CONFIGURACIONES (OnModelCreating)

@@ -1,0 +1,73 @@
+@page
+@model miTienda.Pages.Cuenta.PerfilModel
+@{
+    ViewData["Title"] = "Mi Perfil";
+    Layout = "_Layout";
+}
+
+<div class="container py-5" style="background-color: #070B12; min-height: 100vh; color: #FAFAFA;">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <h2 style="color: #FAFAFA; font-weight: bold;">👤 Mi Perfil</h2>
+            <p style="color: #a0a0a0;">Actualiza tu información personal.</p>
+            <hr style="border-color: #0B6299;" />
+
+            @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+            {
+                <div class="alert" style="background-color: #1a3d1a; border-color: #44ff44; color: #88ff88;">
+                    ✅ @Model.SuccessMessage
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="alert" style="background-color: #3d1a1a; border-color: #ff4444; color: #ff8888;">
+                    ❌ @Model.ErrorMessage
+                </div>
+            }
+
+            <div class="card" style="background-color: #1A1F2E; border: none; border-radius: 12px; padding: 32px;">
+                <form method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label" style="color: #FAFAFA; font-weight: bold;">Nombres</label>
+                            <input type="text" asp-for="Perfil.Nombres" class="form-control"
+                                   style="background-color: #070B12; color: #FAFAFA; border-color: #0B6299; border-radius: 8px; padding: 12px;" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" style="color: #FAFAFA; font-weight: bold;">Apellidos</label>
+                            <input type="text" asp-for="Perfil.Apellidos" class="form-control"
+                                   style="background-color: #070B12; color: #FAFAFA; border-color: #0B6299; border-radius: 8px; padding: 12px;" required />
+                        </div>
+                    </div>
+
+                    <div class="mb-3 mt-3">
+                        <label class="form-label" style="color: #FAFAFA; font-weight: bold;">Correo Electrónico</label>
+                        <input type="email" asp-for="Perfil.Email" class="form-control"
+                               style="background-color: #070B12; color: #FAFAFA; border-color: #0B6299; border-radius: 8px; padding: 12px;" readonly />
+                        <small style="color: #8c8c8c;">El correo no se puede cambiar.</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" style="color: #FAFAFA; font-weight: bold;">Teléfono</label>
+                        <input type="tel" asp-for="Perfil.Telefono" class="form-control"
+                               style="background-color: #070B12; color: #FAFAFA; border-color: #0B6299; border-radius: 8px; padding: 12px;" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" style="color: #FAFAFA; font-weight: bold;">Dirección</label>
+                        <textarea asp-for="Perfil.Direccion" class="form-control" rows="2"
+                                  style="background-color: #070B12; color: #FAFAFA; border-color: #0B6299; border-radius: 8px; padding: 12px;"
+                                  placeholder="Av. Principal 123, Urbanización..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn w-100 mt-3" style="background-color: #FFA600; color: #070B12; font-weight: bold; border-radius: 8px; padding: 12px; font-size: 16px;">
+                        💾 Guardar Cambios
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

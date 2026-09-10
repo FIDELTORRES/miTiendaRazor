@@ -59,7 +59,6 @@ namespace miTienda.Models
         [Column("access_failed_count")]
         public override int AccessFailedCount { get; set; }
 
-        // ✅ NUEVA: TwoFactorEnabled (faltaba)
         [Column("two_factor_enabled")]
         public override bool TwoFactorEnabled { get; set; }
 
@@ -96,9 +95,12 @@ namespace miTienda.Models
         public DateTime? FechaUltimoLogin { get; set; }
 
         // ============================================================
-        // 📌 PROPIEDADES DE NAVEGACIÓN
+        // 📌 PROPIEDAD DE NAVEGACIÓN (SOLO UNA VEZ)
         // ============================================================
 
+        /// <summary>
+        /// Relación con la tabla cliente (SOLO UNA VEZ, no duplicar)
+        /// </summary>
         [ForeignKey("IdCliente")]
         public virtual Cliente? Cliente { get; set; }
 

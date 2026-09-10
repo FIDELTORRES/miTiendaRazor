@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using miTienda.Data;
 using miTienda.Models;
+using miTienda.Services; 
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -80,6 +81,8 @@ builder.Services.AddRazorPages();
 
 // ✅ HttpContextAccessor (para acceder a HttpContext desde servicios)
 builder.Services.AddHttpContextAccessor();
+// ✅ REGISTRAR EL SERVICIO DE CORREO
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // ============================================================
 // 5. CONSTRUIR LA APLICACIÓN

@@ -8,7 +8,7 @@ using System.Text.Json;
 
 namespace miTienda.Pages.Pagos
 {
-    public class PlinModel : PageModel
+    public class EfectivoModel : PageModel
     {
         public List<CarritoItem> Items { get; set; } = new();
         public decimal? Subtotal { get; set; }
@@ -16,15 +16,13 @@ namespace miTienda.Pages.Pagos
         public decimal? Total { get; set; }
 
         [BindProperty]
-        public string CodigoConfirmacion { get; set; } = string.Empty;
-
-        public string CodigoTransaccion { get; private set; } = string.Empty;
+        public PedidoEfectivo Pedido { get; set; } = new();
 
         public IActionResult OnGet()
         {
             if (User.Identity?.IsAuthenticated != true)
             {
-                return RedirectToPage("/Auth/Login", new { returnUrl = "/Pagos/Plin" });
+                return RedirectToPage("/Auth/Login", new { returnUrl = "/Pagos/Efectivo" });
             }
 
             var carritoJson = HttpContext.Session.GetString("Carrito");
@@ -46,8 +44,6 @@ namespace miTienda.Pages.Pagos
             Igv = Subtotal * 0.18m;
             Total = Subtotal + Igv;
 
-            CodigoTransaccion = $"PLIN-{DateTime.Now:yyyyMMdd}-{new Random().Next(1000, 9999)}";
-
             return Page();
         }
 
@@ -55,17 +51,26 @@ namespace miTienda.Pages.Pagos
         {
             if (User.Identity?.IsAuthenticated != true)
             {
-                return RedirectToPage("/Auth/Login", new { returnUrl = "/Pagos/Plin" });
+                return RedirectToPage("/Auth/Login", new { returnUrl = "/Pagos/Efectivo" });
             }
 
-            if (string.IsNullOrEmpty(CodigoConfirmacion))
+            if (string.IsNullOrEmpty(Pedido.Nombre) || string.IsNullOrEmpty(Pedido.Direccion))
             {
-                ModelState.AddModelError("CodigoConfirmacion", "Debes ingresar el código de transacción.");
+                ModelState.AddModelError("", "Completa todos los campos obligatorios.");
                 return Page();
             }
 
-            TempData["Success"] = "✅ ¡Pago con Plin confirmado!";
+            // Aquí guardarías el pedido en la base de datos
+            TempData["Success"] = "✅ ¡Pedido confirmado! Pagarás al recibir.";
             return RedirectToPage("/Pagos/Exitoso");
+        }
+
+        public class PedidoEfectivo
+        {
+            public string Nombre { get; set; } = string.Empty;
+            public string Telefono { get; set; } = string.Empty;
+            public string Direccion { get; set; } = string.Empty;
+            public string Indicaciones { get; set; } = string.Empty;
         }
     }
 }

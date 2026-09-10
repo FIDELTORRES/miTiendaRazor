@@ -76,7 +76,6 @@ namespace miTienda.Models
         public string? IdCodigoDetalle { get; set; }
 
         [Column("idisc")]
-        [MaxLength(2)]
         public string? IdIsc { get; set; }
 
         [Column("mtotriotroitem")]
@@ -121,5 +120,6 @@ namespace miTienda.Models
         [Column("codigosunat")]
         [MaxLength(50)]
         public string? CodigoSunat { get; set; }
+
     }
 }

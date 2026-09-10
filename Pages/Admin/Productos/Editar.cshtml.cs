@@ -298,7 +298,7 @@ public class EditarModel : PageModel
         var subcategorias = await _context.Subcategorias
             .Where(s => s.Estado == 1 &&
                         (s.IdSubcategoria.ToString().Contains(term) ||
-                         s.Descripcion.Contains(term)))
+                         (s.Descripcion != null && s.Descripcion.Contains(term))))
             .OrderBy(s => s.Descripcion)
             .Take(20)
             .Select(s => new { id = s.IdSubcategoria, text = $"{s.IdSubcategoria} - {s.Descripcion}" })

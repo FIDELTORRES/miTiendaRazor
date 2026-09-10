@@ -12,6 +12,12 @@ namespace miTienda.Models
         public string? Imagen { get; set; }
         public decimal? PrecioVenta { get; set; }
         public int Cantidad { get; set; }
+        public string? Codbarra { get; set; }
+        public decimal? PrecioCompra { get; set; }
+        public string? UnidadMedida { get; set; }
+        public string? UsuariosClientes { get; set; }
+        public string? UsuariosVendedores { get; set; }
+
 
         [JsonIgnore]
         public decimal? Subtotal => (PrecioVenta ?? 0) * Cantidad;

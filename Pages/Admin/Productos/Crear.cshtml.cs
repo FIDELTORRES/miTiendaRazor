@@ -271,7 +271,7 @@ public class CrearModel : PageModel
 
         var prefijo = idsubcategoria.ToString();
         var ultimo = await _context.Productos
-            .Where(p => p.Codigo.StartsWith(prefijo))
+            .Where(p => p.Codigo != null && p.Codigo.StartsWith(prefijo))
             .OrderByDescending(p => p.IdProducto)
             .Select(p => p.Codigo)
             .FirstOrDefaultAsync();
@@ -314,7 +314,7 @@ public class CrearModel : PageModel
         var subcategorias = await _context.Subcategorias
             .Where(s => s.Estado == 1 &&
                         (s.IdSubcategoria.ToString().Contains(term) ||
-                         s.Descripcion.Contains(term)))
+                         (s.Descripcion != null && s.Descripcion.Contains(term))))
             .OrderBy(s => s.Descripcion)
             .Take(20)
             .Select(s => new { id = s.IdSubcategoria, text = $"{s.IdSubcategoria} - {s.Descripcion}" })

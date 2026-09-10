@@ -1,4 +1,9 @@
-﻿﻿<!DOCTYPE html>
+﻿﻿@using Microsoft.EntityFrameworkCore
+@using miTienda.Data
+@using miTienda.Models
+@inject MiTiendaContext _context
+
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8" />
@@ -193,11 +198,54 @@
                 <div class="dropdown-menu mega-menu-dropdown p-0 m-0" aria-labelledby="btnCategorias">
                     <div class="row g-0">
 
+                        @{
+                            // ✅ Cargar categorías desde ViewData, o desde la BD si no existen
+                            var categorias = ViewData["CategoriasNivel1"] as List<miTienda.Models.CategoriaNivel1>;
+
+                            if (categorias == null || !categorias.Any())
+                            {
+                                // 🔄 Cargar desde la BD si no vienen del PageModel
+                                var datos = await _context.Database
+                                    .SqlQueryRaw<CategoriaMenu>(@"
+                                        SELECT 
+                                            CAST(cp.idsubcategoria AS CHAR) AS IdSubcategoria,
+                                            CAST(cp.idcategoriapropia AS CHAR) AS IdCategoriapropia,
+                                            ct.descripcion AS CategoriaPropiaDesc,
+                                            CAST(cp.idcategoriapagina AS CHAR) AS IdCategoriapagina,
+                                            cp.descripcion AS CategoriaPaginaDesc,
+                                            CAST(sb.idsubcategoriapagina AS CHAR) AS IdSubcategoriapagina,
+                                            sb.descripcion AS SubcategoriaPaginaDesc
+                                        FROM categoriapagina cp
+                                        INNER JOIN categoriapropia ct ON cp.idcategoriapropia = ct.idcategoriapropia
+                                        INNER JOIN subcategoriapagina sb ON cp.idcategoriapagina = sb.idcategoriapagina
+                                        ORDER BY ct.descripcion ASC, cp.descripcion ASC, sb.descripcion ASC
+                                    ")
+                                    .ToListAsync();
+
+                                categorias = datos
+                                    .GroupBy(c => new { c.IdCategoriapropia, c.CategoriaPropiaDesc })
+                                    .Select(g1 => new miTienda.Models.CategoriaNivel1
+                                    {
+                                        IdCategoriapropia = g1.Key.IdCategoriapropia,
+                                        CategoriaPropiaDesc = g1.Key.CategoriaPropiaDesc,
+                                        Nivel2 = g1
+                                            .GroupBy(c => new { c.IdCategoriapagina, c.CategoriaPaginaDesc })
+                                            .Select(g2 => new miTienda.Models.CategoriaNivel2
+                                            {
+                                                IdCategoriapagina = g2.Key.IdCategoriapagina,
+                                                CategoriaPaginaDesc = g2.Key.CategoriaPaginaDesc,
+                                                Nivel3 = g2.Select(c => new miTienda.Models.CategoriaNivel3
+                                                {
+                                                    IdSubcategoria = c.IdSubcategoria,
+                                                    SubcategoriaPaginaDesc = c.SubcategoriaPaginaDesc
+                                                }).ToList()
+                                            }).ToList()
+                                    }).ToList();
+                            }
+                        }
+
                         <!-- NIVEL 1: Categorías Principales (Columna Izquierda) -->
                         <div class="col-4 menu-nivel1-list">
-                            @{
-                                var categorias = ViewData["CategoriasNivel1"] as List<miTienda.Models.CategoriaNivel1>;
-                            }
                             @if (categorias != null && categorias.Any())
                             {
                                 var index = 0;
@@ -286,45 +334,91 @@
                     </span>
                 </a>
 
-                <!-- ============================================================
-                ZONA DE AUTENTICACIÓN: Login / Registro / Cerrar Sesión
-                ============================================================ -->
+                <!-- ============================================================ -->
+                <!-- ZONA DE AUTENTICACIÓN: Login / Registro / Menú de Cuenta   -->
+                <!-- ============================================================ -->
                 <div class="d-flex align-items-center gap-2">
 
-                    @if (User.Identity.IsAuthenticated)
+                    @if (User.Identity?.IsAuthenticated == true)
                     {
                         // ============================================================
-                        // USUARIO LOGUEADO - Mostrar nombre y botón de cerrar sesión
+                        // USUARIO LOGUEADO - Mostrar dropdown de cuenta
                         // ============================================================
-
-                        <!-- Nombre del usuario logueado -->
-                        <span class="nav-user-link user-name">
-                            👋 @User.Identity.Name
-                        </span>
-
-                        <!-- Separador visual -->
-                        <span class="nav-separator">|</span>
-
-                        <!-- Botón de Cerrar Sesión -->
-                        <a asp-page="/Auth/Logout" class="nav-user-link logout" title="Cerrar Sesión">
-                            Cerrar Sesión
-                        </a>
+                        <div class="dropdown">
+                            <button class="btn nav-user-link user-name dropdown-toggle" type="button"
+                                    id="btnCuenta" data-bs-toggle="dropdown" aria-expanded="false"
+                                    style="background-color: transparent; border: none; color: #FFA600; font-weight: bold;">
+                                👋 @(User.Identity.Name?.Split('@')[0] ?? "Mi Cuenta")
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="btnCuenta"
+                                style="background-color: #1A1F2E; border: 1px solid #0B6299; border-radius: 8px; min-width: 220px;">
+                                
+                                <!-- Encabezado con el email -->
+                                <li>
+                                    <div style="padding: 10px 16px; border-bottom: 1px solid #0B6299;">
+                                        <small style="color: #a0a0a0;">Cuenta:</small><br />
+                                        <strong style="color: #FAFAFA; font-size: 13px;">@User.Identity.Name</strong>
+                                    </div>
+                                </li>
+                                
+                                <!-- Opciones del menú -->
+                                <li>
+                                    <a class="dropdown-item" asp-page="/Cuenta/Pedidos" 
+                                    style="color: #FAFAFA; padding: 10px 16px; transition: all 0.2s ease;"
+                                    onmouseover="this.style.backgroundColor='#0B6299'; this.style.color='#FAFAFA';"
+                                    onmouseout="this.style.backgroundColor='transparent'; this.style.color='#FAFAFA';">
+                                        📦 Mis Pedidos
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-page="/Cuenta/Perfil"
+                                    style="color: #FAFAFA; padding: 10px 16px; transition: all 0.2s ease;"
+                                    onmouseover="this.style.backgroundColor='#0B6299'; this.style.color='#FAFAFA';"
+                                    onmouseout="this.style.backgroundColor='transparent'; this.style.color='#FAFAFA';">
+                                        👤 Mi Perfil
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-page="/Cuenta/Direcciones"
+                                    style="color: #FAFAFA; padding: 10px 16px; transition: all 0.2s ease;"
+                                    onmouseover="this.style.backgroundColor='#0B6299'; this.style.color='#FAFAFA';"
+                                    onmouseout="this.style.backgroundColor='transparent'; this.style.color='#FAFAFA';">
+                                        📍 Mis Direcciones
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-page="/Cuenta/Seguridad"
+                                    style="color: #FAFAFA; padding: 10px 16px; transition: all 0.2s ease;"
+                                    onmouseover="this.style.backgroundColor='#0B6299'; this.style.color='#FAFAFA';"
+                                    onmouseout="this.style.backgroundColor='transparent'; this.style.color='#FAFAFA';">
+                                        🔐 Seguridad
+                                    </a>
+                                </li>
+                                
+                                <!-- Separador -->
+                                <li><hr class="dropdown-divider" style="border-color: #0B6299; margin: 4px 0;" /></li>
+                                
+                                <!-- Cerrar sesión -->
+                                <li>
+                                    <a class="dropdown-item" asp-page="/Auth/Logout"
+                                    style="color: #ff6b6b; padding: 10px 16px; transition: all 0.2s ease;"
+                                    onmouseover="this.style.backgroundColor='#2a1a1a'; this.style.color='#ff4444';"
+                                    onmouseout="this.style.backgroundColor='transparent'; this.style.color='#ff6b6b';">
+                                        🚪 Cerrar Sesión
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                     }
                     else
                     {
                         // ============================================================
-                        // USUARIO NO LOGUEADO - Mostrar opciones de Login y Registro
+                        // USUARIO NO LOGUEADO
                         // ============================================================
-
-                        <!-- Botón de Iniciar Sesión -->
                         <a asp-page="/Auth/Login" class="nav-user-link login" title="Iniciar Sesión">
                             🔐 Iniciar Sesión
                         </a>
-
-                        <!-- Separador visual -->
                         <span class="nav-separator">|</span>
-
-                        <!-- Botón de Registrarse -->
                         <a asp-page="/Auth/Registro" class="nav-user-link register" title="Crear cuenta">
                             📝 Registrarse
                         </a>
@@ -407,7 +501,7 @@
 
             // ============================================================
             // RESTAURAR VALOR DEL BUSCADOR DESDE LA URL
-            // ============================================================ */
+            // ============================================================
             const searchInput = document.querySelector('input[name="busqueda"]');
             if (searchInput) {
                 const urlParams = new URLSearchParams(window.location.search);
@@ -419,12 +513,12 @@
 
             // ============================================================
             // ACTUALIZAR CONTADOR DEL CARRITO AL CARGAR LA PÁGINA
-            // ============================================================ */
+            // ============================================================
             actualizarContadorCarrito();
 
             // ============================================================
-            // ACTUALIZAR CONTADOR CADA 30 SEGUNDOS (para mantenerlo sincronizado)
-            // ============================================================ */
+            // ACTUALIZAR CONTADOR CADA 30 SEGUNDOS
+            // ============================================================
             setInterval(actualizarContadorCarrito, 30000);
         });
 
@@ -432,21 +526,13 @@
         /**
          * ============================================================
          * FUNCIÓN: agregarAlCarrito
-         * Agrega un producto al carrito vía AJAX (petición POST)
-         * 
-         * param {number} productoId - ID del producto a agregar
-         * param {string} nombre - Nombre del producto (no se usa pero se mantiene)
-         * param {number} precio - Precio del producto (no se usa pero se mantiene)
          * ============================================================ */
         function agregarAlCarrito(productoId, nombre, precio) {
-            // Mostrar mensaje de carga
             showToast('⏳ Agregando producto...');
 
-            // Obtener el token antifalsificación del formulario
             const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
             const token = tokenInput ? tokenInput.value : '';
 
-            // Configurar headers de la petición
             const headers = {
                 'Content-Type': 'application/json'
             };
@@ -454,7 +540,6 @@
                 headers['RequestVerificationToken'] = token;
             }
 
-            // Realizar la petición POST al servidor
             fetch('/Web/Carrito?handler=Add', {
                 method: 'POST',
                 headers: headers,
@@ -464,7 +549,6 @@
                 })
             })
                 .then(response => {
-                    // Verificar si la respuesta es exitosa
                     if (!response.ok) {
                         return response.json().then(data => {
                             throw new Error(data.message || `Error HTTP: ${response.status}`);
@@ -474,14 +558,12 @@
                 })
                 .then(data => {
                     if (data.success) {
-                        // Actualizar el contador del carrito en la interfaz
                         const counter = document.getElementById('carritoCount');
                         if (counter) {
                             counter.textContent = data.totalItems;
                         }
                         showToast('✅ Producto agregado al carrito');
                     } else {
-                        // Mostrar mensaje de error del servidor
                         const errorMsg = data.message || 'Error al agregar el producto';
                         showToast('❌ ' + errorMsg);
                     }
@@ -496,12 +578,8 @@
         /**
          * ============================================================
          * FUNCIÓN: showToast
-         * Muestra un mensaje tipo "toast" en la parte inferior de la pantalla
-         * 
-         * param {string} message - Mensaje a mostrar al usuario
          * ============================================================ */
         function showToast(message) {
-            // Crear elemento div para el toast
             const toast = document.createElement('div');
             toast.style.cssText = `
                     position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
@@ -515,7 +593,6 @@
             toast.textContent = message;
             document.body.appendChild(toast);
 
-            // Auto-eliminar después de 3 segundos
             setTimeout(() => {
                 toast.style.opacity = '0';
                 setTimeout(() => toast.remove(), 300);
@@ -526,8 +603,6 @@
         /**
          * ============================================================
          * FUNCIÓN: actualizarContadorCarrito
-         * Consulta al servidor el número de items en el carrito
-         * y actualiza el contador en la interfaz
          * ============================================================ */
         function actualizarContadorCarrito() {
             fetch('/Web/Carrito?handler=Count')

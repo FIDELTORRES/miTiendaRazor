@@ -6,6 +6,7 @@ using miTienda.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -20,27 +21,62 @@ namespace miTienda.Pages.Pagos
             _context = context;
         }
 
-        public List<CarritoItem> Items { get; set; } = new();
-        public decimal Subtotal => Items?.Sum(i => i.Subtotal) ?? 0;
-        public decimal Igv => Subtotal * 0.18m;
-        public decimal TotalConIgv => Subtotal + Igv;
-        public List<CategoriaNivel1> CategoriasNivel1 { get; set; } = new();
-        
-        // ✅ Propiedad para saber si el usuario está autenticado
-        public bool IsAuthenticated => User.Identity?.IsAuthenticated ?? false;
+        // ============================================================
+        // 📌 PROPIEDADES
+        // ============================================================
 
-        public async Task OnGetAsync()
+        public List<CarritoItem> Items { get; set; } = new();
+        public decimal? Subtotal { get; set; }
+        public decimal? Igv { get; set; }
+        public decimal? Total { get; set; }
+
+        public decimal TotalConIgv => (Subtotal ?? 0m) + (Igv ?? 0m);
+
+        // ============================================================
+        // 📌 MÉTODO PARA OBTENER IDENTIFICADOR DEL USUARIO
+        // ============================================================
+
+        /// <summary>
+        /// Obtiene el identificador del usuario (logueado o anónimo)
+        /// - Si está logueado: usa el ID del usuario
+        /// - Si es anónimo: usa el SessionId
+        /// Siempre devuelve máximo 20 caracteres
+        /// </summary>
+        private string GetUserIdentifier()
         {
-            await CargarCategorias();
-            await CargarCarrito();
+            // 🔑 Si el usuario está autenticado, usar su ID (de Identity)
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    return userId.Length <= 20 ? userId : userId.Substring(0, 20);
+                }
+            }
+
+            // 🔑 Si no está autenticado, usar SessionId
+            var sessionId = HttpContext.Session.Id;
+            if (string.IsNullOrEmpty(sessionId))
+            {
+                HttpContext.Session.SetString("_Init", "1");
+                sessionId = HttpContext.Session.Id;
+            }
+
+            return sessionId.Length <= 20 ? sessionId : sessionId.Substring(0, 20);
         }
 
-        private async Task CargarCarrito()
-        {
-            string usuario = "web";
+        // ============================================================
+        // 📌 MÉTODO GET
+        // ============================================================
 
+        public async Task<IActionResult> OnGet()
+        {
+            // ✅ Obtener identificador del usuario
+            var userIdentifier = GetUserIdentifier();
+
+            // ✅ 1. Intentar cargar desde la base de datos
             var temporales = await _context.VentasTemporales
-                .Where(v => v.UsuarioIngreso == usuario && v.IdProducto.HasValue)
+                .Where(v => v.UsuarioIngreso == userIdentifier && v.IdProducto.HasValue)
                 .ToListAsync();
 
             if (temporales.Any())
@@ -51,57 +87,36 @@ namespace miTienda.Pages.Pagos
                     Nombre = v.Nombre ?? "Producto",
                     Imagen = v.Imagen ?? "",
                     PrecioVenta = v.PrecioVenta ?? 0,
-                    Cantidad = (int)(v.Cantidad ?? 1)
+                    Cantidad = (int)(v.Cantidad ?? 1),
+                    Codbarra = v.Codbarra ?? ""
                 }).ToList();
+
+                // ✅ Actualizar sesión con los datos de la BD
+                HttpContext.Session.SetString("Carrito", JsonSerializer.Serialize(Items));
+            }
+            else
+            {
+                // ✅ 2. Si no hay en BD, intentar cargar desde sesión
+                var carritoJson = HttpContext.Session.GetString("Carrito");
+                if (!string.IsNullOrEmpty(carritoJson))
+                {
+                    Items = JsonSerializer.Deserialize<List<CarritoItem>>(carritoJson) ?? new();
+                }
             }
 
-            // Si no hay items, redirigir al carrito
+            // ✅ 3. Si aún no hay items, redirigir al carrito
             if (!Items.Any())
             {
-                Response.Redirect("/Web/Carrito");
+                TempData["Error"] = "Tu carrito está vacío.";
+                return RedirectToPage("/Web/Carrito");
             }
-        }
 
-        private async Task CargarCategorias()
-        {
-            var datos = await _context.Database
-                .SqlQueryRaw<CategoriaMenu>(@"
-                    SELECT 
-                        CAST(cp.idsubcategoria AS CHAR) AS IdSubcategoria,
-                        CAST(cp.idcategoriapropia AS CHAR) AS IdCategoriapropia,
-                        ct.descripcion AS CategoriaPropiaDesc,
-                        CAST(cp.idcategoriapagina AS CHAR) AS IdCategoriapagina,
-                        cp.descripcion AS CategoriaPaginaDesc,
-                        CAST(sb.idsubcategoriapagina AS CHAR) AS IdSubcategoriapagina,
-                        sb.descripcion AS SubcategoriaPaginaDesc
-                    FROM categoriapagina cp
-                    INNER JOIN categoriapropia ct ON cp.idcategoriapropia = ct.idcategoriapropia
-                    INNER JOIN subcategoriapagina sb ON cp.idcategoriapagina = sb.idcategoriapagina
-                    ORDER BY ct.descripcion ASC, cp.descripcion ASC, sb.descripcion ASC
-                ")
-                .ToListAsync();
+            // ✅ 4. Calcular totales
+            Subtotal = Items.Sum(i => i.Subtotal);      // Total con IGV
+            Igv = Subtotal / 1.18m * 0.18m;             // IGV = total / 1.18 * 0.18
+            Total = Subtotal;                          // El total es el subtotal (ya incluye IGV)
 
-            CategoriasNivel1 = datos
-                .GroupBy(c => new { c.IdCategoriapropia, c.CategoriaPropiaDesc })
-                .Select(g1 => new CategoriaNivel1
-                {
-                    IdCategoriapropia = g1.Key.IdCategoriapropia,
-                    CategoriaPropiaDesc = g1.Key.CategoriaPropiaDesc,
-                    Nivel2 = g1
-                        .GroupBy(c => new { c.IdCategoriapagina, c.CategoriaPaginaDesc })
-                        .Select(g2 => new CategoriaNivel2
-                        {
-                            IdCategoriapagina = g2.Key.IdCategoriapagina,
-                            CategoriaPaginaDesc = g2.Key.CategoriaPaginaDesc,
-                            Nivel3 = g2.Select(c => new CategoriaNivel3
-                            {
-                                IdSubcategoria = c.IdSubcategoria,
-                                SubcategoriaPaginaDesc = c.SubcategoriaPaginaDesc
-                            }).ToList()
-                        }).ToList()
-                }).ToList();
-
-            ViewData["CategoriasNivel1"] = CategoriasNivel1;
+            return Page();
         }
     }
 }
