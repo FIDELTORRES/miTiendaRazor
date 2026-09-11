@@ -83,7 +83,9 @@ builder.Services.AddRazorPages();
 builder.Services.AddHttpContextAccessor();
 // ✅ REGISTRAR EL SERVICIO DE CORREO
 builder.Services.AddScoped<IEmailService, EmailService>();
-
+// ✅ AGREGAR: Registrar HttpClient y el servicio de WhatsApp
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<IWhatsAppService, WhatsAppService>();
 // ============================================================
 // 5. CONSTRUIR LA APLICACIÓN
 // ============================================================
@@ -92,6 +94,11 @@ var app = builder.Build();
 // ============================================================
 // 6. CONFIGURAR EL PIPELINE DE MIDDLEWARE
 // ============================================================
+// ✅ Cargar User Secrets en desarrollo
+if (builder.Environment.IsDevelopment())
+{
+    builder.Configuration.AddUserSecrets<Program>();
+}
 
 // ✅ Manejo de errores en desarrollo
 if (!app.Environment.IsDevelopment())

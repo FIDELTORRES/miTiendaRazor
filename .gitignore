@@ -28,8 +28,22 @@ obj/
 ## Ignorar archivos de configuración local
 appsettings.Development.json
 appsettings.Production.json
+appsettings.Local.json
 *.local.json
 *.local
+
+## ✅ NUEVO: Ignorar User Secrets (CRÍTICO)
+secrets.json
+*.secrets.json
+**/secrets.json
+
+## ✅ NUEVO: Ignorar certificados y llaves (CRÍTICO)
+*.pfx
+*.p12
+*.key
+*.pem
+*.cer
+*.crt
 
 ## Ignorar archivos de dependencias
 /packages/
@@ -48,15 +62,28 @@ log/
 *.seed
 
 # ================================================================
-# 📌 VISUAL STUDIO CODE
+# 📌 VISUAL STUDIO / VISUAL STUDIO CODE
 # ================================================================
 
+## ✅ NUEVO: Visual Studio
+.vs/
+*.vssscc
+*.vspscc
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+## Visual Studio Code
 .vscode/
 *.code-workspace
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+## JetBrains Rider
+.idea/
+*.sln.iml
 
 # ================================================================
 # 📌 SISTEMAS OPERATIVOS
@@ -66,16 +93,19 @@ log/
 Thumbs.db
 Desktop.ini
 $RECYCLE.BIN/
+*.lnk
 
 ## macOS
 .DS_Store
 .AppleDouble
 .LSOverride
+._*
 
 ## Linux
 *~
 .*.swp
 .*.swo
+.directory
 
 # ================================================================
 # 📌 OTROS
@@ -95,9 +125,17 @@ $RECYCLE.BIN/
 *.zip
 *.rar
 *.7z
+*.tar
 *.tar.gz
+*.gz
 
 ## Ignorar cobertura de pruebas
 TestResults/
 *.coverage
 *.coveragexml
+
+## Ignorar archivos generados por herramientas
+GeneratedFiles/
+TempFiles/
+*.orig
+*.rej

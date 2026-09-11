@@ -19,15 +19,18 @@ namespace miTienda.Pages.Pagos
         private readonly MiTiendaContext _context;
         private readonly UserManager<UsuarioCliente> _userManager;
         private readonly IEmailService _emailService;
+        private readonly IWhatsAppService _whatsAppService;   // ✅ AGREGAR
 
         public ConfirmarModel(
             MiTiendaContext context,
             UserManager<UsuarioCliente> userManager,
-            IEmailService emailService)
+            IEmailService emailService,
+            IWhatsAppService whatsAppService)
         {
             _context = context;
             _userManager = userManager;
             _emailService = emailService;
+            _whatsAppService = whatsAppService;
         }
 
         // ============================================================
@@ -325,8 +328,8 @@ namespace miTienda.Pages.Pagos
 
             foreach (var temp in Temporales)
             {
-                string codbarra = temp.Codbarra;
-                if (string.IsNullOrEmpty(codbarra))
+                var codbarra = temp.Codbarra;
+                if (string.IsNullOrWhiteSpace(codbarra))
                 {
                     codbarra = temp.IdProducto?.ToString() ?? "0";
                 }
@@ -432,12 +435,22 @@ namespace miTienda.Pages.Pagos
             // 📌 PASO 8: ENVIAR CORREOS (USANDO Items, QUE YA TIENE LOS DATOS)
             // ============================================================
 
+            // ============================================================
+            // 📌 PASO 8: ENVIAR CORREOS DE CONFIRMACIÓN
+            // ============================================================
+
             try
             {
+                var emailCliente = usuario.Email ?? "";
+                if (string.IsNullOrWhiteSpace(emailCliente))
+                {
+                    throw new InvalidOperationException("El usuario no tiene un correo registrado para enviar la confirmación.");
+                }
+
                 // Correo para el cliente
                 var subjectCliente = $"✅ Confirmación de pedido #{pedido.IdPedidoWeb} - Elfide.com";
                 var bodyCliente = GenerarHtmlPedido(pedido, Items, usuario.Nombres ?? "Cliente");
-                await _emailService.SendEmailAsync(usuario.Email, subjectCliente, bodyCliente);
+                await _emailService.SendEmailAsync(emailCliente, subjectCliente, bodyCliente);
             }
             catch (Exception ex)
             {
@@ -446,9 +459,11 @@ namespace miTienda.Pages.Pagos
 
             try
             {
+                var emailCliente = usuario.Email ?? "";
+
                 // Correo para la empresa
                 var subjectEmpresa = $"🛒 Nuevo pedido web #{pedido.IdPedidoWeb}";
-                var bodyEmpresa = GenerarHtmlPedidoEmpresa(pedido, Items, usuario.Email);
+                var bodyEmpresa = GenerarHtmlPedidoEmpresa(pedido, Items, emailCliente);
                 await _emailService.SendEmailAsync("tiendaelfide@gmail.com", subjectEmpresa, bodyEmpresa);
             }
             catch (Exception ex)
@@ -457,11 +472,55 @@ namespace miTienda.Pages.Pagos
             }
 
             // ============================================================
+            // 📌 PASO 8.5: ENVIAR NOTIFICACIONES POR WHATSAPP
+            // ============================================================
+
+            try
+            {
+                // ✅ 1. Enviar WhatsApp al cliente (si tiene teléfono)
+                if (!string.IsNullOrEmpty(usuario.Telefono))
+                {
+                    await _whatsAppService.EnviarPedidoAlClienteAsync(
+                        usuario.Telefono,
+                        pedido.IdPedidoWeb,
+                        usuario.Nombres ?? "Cliente",
+                        pedido.TotalVenta ?? 0,
+                        pedido.DireccionEntrega ?? "",
+                        pedido.FechaEntrega?.ToString("dd/MM/yyyy") ?? "",
+                        pedido.HoraEntrega?.ToString("hh\\:mm") ?? ""
+                    );
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error enviando WhatsApp al cliente: {ex.Message}");
+            }
+
+            try
+            {
+                // ✅ 2. Enviar WhatsApp al administrador
+                await _whatsAppService.EnviarPedidoAlAdminAsync(
+                    pedido.IdPedidoWeb,
+                    usuario.Email ?? "",
+                    pedido.TotalVenta ?? 0,
+                    pedido.IdTransaccion ?? "",
+                    pedido.DireccionEntrega ?? "",
+                    pedido.FechaEntrega?.ToString("dd/MM/yyyy") ?? "",
+                    pedido.HoraEntrega?.ToString("hh\\:mm") ?? ""
+                );
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error enviando WhatsApp al administrador: {ex.Message}");
+            }
+
+            // ============================================================
             // 📌 PASO 9: REDIRIGIR A ÉXITO
             // ============================================================
 
             TempData["Success"] = "✅ ¡Pago confirmado! Tu pedido está siendo procesado.";
             return RedirectToPage("/Pagos/Exitoso", new { id = pedido.IdPedidoWeb });
+
         }
 
         // ============================================================
